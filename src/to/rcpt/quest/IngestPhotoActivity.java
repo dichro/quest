@@ -2,46 +2,71 @@ package to.rcpt.quest;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.MediaStore.Images.Media;
 import android.util.Log;
 import android.view.Menu;
-import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 public class IngestPhotoActivity extends Activity {
 	private static final String TAG = "IngestPhotoActivity";
-	private View imageView;
+	private static final String[] PATH = new String[] { Media.DATA };
+	private ImageView imageView;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_ingest_photo);
-		imageView = findViewById(R.id.imageView);
+		imageView = (ImageView) findViewById(R.id.imageView);
 	}
 
-	private class ImageHandler extends AsyncTask<Uri, Integer, Integer> {
+	private class ImageHandler extends AsyncTask<Uri, Integer, Bitmap> {
 		@Override
-		protected Integer doInBackground(Uri... uris) {
+		protected Bitmap doInBackground(Uri... uris) {
 			Uri uri = uris[0];
 			Log.i(TAG, "Got " + uri);
 			// TODO(dichro): handle things other than "content://"
-
+			Cursor cursor = getContentResolver().query(uri, PATH, null, null,
+					null);
+			cursor.moveToFirst();
+			int columnIndex = cursor.getColumnIndex(PATH[0]);
+			String path = cursor.getString(columnIndex);
+			cursor.close();
+			// downsample
 			BitmapFactory.Options o = new BitmapFactory.Options();
 			o.inJustDecodeBounds = true;
-
-			String path = uri.getPath();
 			BitmapFactory.decodeFile(path, o);
 			Log.i(TAG, path + ": " + o.outWidth + "x" + o.outHeight);
 			if (o.outWidth == 0 || o.outHeight == 0) {
 				toast("Failed to load image", Toast.LENGTH_SHORT);
-				return 1;
+				return null;
 			}
-			return 0;
+
+			int scaleFactor = (int) Math.pow(
+					Math.ceil(Math.log(Math.max(o.outWidth / 2048.0,
+							o.outHeight / 2048.0)) / Math.log(2)), 2);
+			o.inJustDecodeBounds = false;
+			o.inSampleSize = scaleFactor;
+			o.inPurgeable = true;
+			o.inInputShareable = true;
+			final Bitmap bm = BitmapFactory.decodeFile(path, o);
+			return bm;
+		}
+
+		@Override
+		protected void onPostExecute(Bitmap bm) {
+			if (bm != null) {
+				Log.i(TAG, "rendering " + bm.getWidth() + "x" + bm.getHeight());
+				imageView.setImageBitmap(bm);
+			}
 		}
 	}
 
