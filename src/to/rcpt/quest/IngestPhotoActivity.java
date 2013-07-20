@@ -5,11 +5,13 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.MediaStore.Images.ImageColumns;
 import android.provider.MediaStore.Images.Media;
 import android.util.Log;
 import android.view.Menu;
@@ -18,7 +20,8 @@ import android.widget.Toast;
 
 public class IngestPhotoActivity extends Activity {
 	private static final String TAG = "IngestPhotoActivity";
-	private static final String[] PATH = new String[] { Media.DATA };
+	private static final String[] PATH = new String[] { Media.DATA,
+			ImageColumns.ORIENTATION };
 	private ImageView imageView;
 
 	@Override
@@ -37,8 +40,9 @@ public class IngestPhotoActivity extends Activity {
 			Cursor cursor = getContentResolver().query(uri, PATH, null, null,
 					null);
 			cursor.moveToFirst();
-			int columnIndex = cursor.getColumnIndex(PATH[0]);
-			String path = cursor.getString(columnIndex);
+			String path = cursor.getString(cursor.getColumnIndex(Media.DATA));
+			int orientation = cursor.getInt(cursor
+					.getColumnIndex(ImageColumns.ORIENTATION));
 			cursor.close();
 			// downsample
 			BitmapFactory.Options o = new BitmapFactory.Options();
@@ -49,7 +53,8 @@ public class IngestPhotoActivity extends Activity {
 				toast("Failed to load image", Toast.LENGTH_SHORT);
 				return null;
 			}
-
+			// constraints: ImageView can only render 2048x2048 bitmaps.
+			// inScaleFactor is rounded down to the nearest power of two.
 			int scaleFactor = (int) Math.pow(
 					Math.ceil(Math.log(Math.max(o.outWidth / 2048.0,
 							o.outHeight / 2048.0)) / Math.log(2)), 2);
@@ -57,7 +62,13 @@ public class IngestPhotoActivity extends Activity {
 			o.inSampleSize = scaleFactor;
 			o.inPurgeable = true;
 			o.inInputShareable = true;
-			final Bitmap bm = BitmapFactory.decodeFile(path, o);
+			Bitmap bm = BitmapFactory.decodeFile(path, o);
+			if (orientation > 0) {
+				Matrix rotate = new Matrix();
+				rotate.postRotate(orientation);
+				bm = Bitmap.createBitmap(bm, 0, 0, bm.getWidth(),
+						bm.getHeight(), rotate, true);
+			}
 			return bm;
 		}
 
