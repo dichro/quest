@@ -4,16 +4,6 @@
     android:layout_height="match_parent"
     tools:context=".IngestPhotoActivity" >
 
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_above="@+id/button1"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:src="@android:drawable/ic_dialog_alert" />
-
     <Button
         android:id="@+id/button_edgeDetect"
         android:layout_width="wrap_content"
@@ -21,5 +11,16 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:text="@string/button_edgeDetect" />
+
+    <jp.co.cyberagent.android.gpuimage.GPUImageView
+        android:id="@+id/imageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/button_edgeDetect"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true" >
+
+    </jp.co.cyberagent.android.gpuimage.GPUImageView>
 
 </RelativeLayout>

@@ -1,5 +1,6 @@
 package to.rcpt.quest;
 
+import jp.co.cyberagent.android.gpuimage.GPUImageView;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
@@ -15,20 +16,19 @@ import android.provider.MediaStore.Images.ImageColumns;
 import android.provider.MediaStore.Images.Media;
 import android.util.Log;
 import android.view.Menu;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 public class IngestPhotoActivity extends Activity {
 	private static final String TAG = "IngestPhotoActivity";
 	private static final String[] PATH = new String[] { Media.DATA,
 			ImageColumns.ORIENTATION };
-	private ImageView imageView;
+	private GPUImageView imageView;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_ingest_photo);
-		imageView = (ImageView) findViewById(R.id.imageView);
+		imageView = (GPUImageView) findViewById(R.id.imageView);
 	}
 
 	private class ImageHandler extends AsyncTask<Uri, Integer, Bitmap> {
@@ -76,7 +76,7 @@ public class IngestPhotoActivity extends Activity {
 		protected void onPostExecute(Bitmap bm) {
 			if (bm != null) {
 				Log.i(TAG, "rendering " + bm.getWidth() + "x" + bm.getHeight());
-				imageView.setImageBitmap(bm);
+				imageView.setImage(bm);
 			}
 		}
 	}
