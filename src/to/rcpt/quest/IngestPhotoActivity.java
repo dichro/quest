@@ -1,6 +1,7 @@
 package to.rcpt.quest;
 
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
@@ -17,6 +18,14 @@ public class IngestPhotoActivity extends Activity {
         setContentView(R.layout.activity_ingest_photo);
     }
 
+	private class ImageHandler extends AsyncTask<Uri, Integer, Integer> {
+		@Override
+		protected Integer doInBackground(Uri... uri) {
+			Log.i(TAG, "Got " + uri[0]);			
+			return 0;
+		}		
+	}
+	
     @Override
     protected void onResume() {
     	super.onResume();
@@ -24,7 +33,7 @@ public class IngestPhotoActivity extends Activity {
         Log.i(TAG, "resume " + intent);
 		if (Intent.ACTION_SEND.equals(intent.getAction())) {
         	Uri uri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
-        	Log.i(TAG, "Got " + uri);
+        	new ImageHandler().execute(uri);
         }
 	}
     
