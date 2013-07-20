@@ -1,5 +1,6 @@
 package to.rcpt.quest;
 
+import jp.co.cyberagent.android.gpuimage.GPUImageSobelEdgeDetection;
 import jp.co.cyberagent.android.gpuimage.GPUImageView;
 import android.app.Activity;
 import android.content.Intent;
@@ -16,6 +17,7 @@ import android.provider.MediaStore.Images.ImageColumns;
 import android.provider.MediaStore.Images.Media;
 import android.util.Log;
 import android.view.Menu;
+import android.view.View;
 import android.widget.Toast;
 
 public class IngestPhotoActivity extends Activity {
@@ -29,6 +31,10 @@ public class IngestPhotoActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_ingest_photo);
 		imageView = (GPUImageView) findViewById(R.id.imageView);
+	}
+
+	public void edgeDetect(View view) {
+		imageView.setFilter(new GPUImageSobelEdgeDetection());
 	}
 
 	private class ImageHandler extends AsyncTask<Uri, Integer, Bitmap> {

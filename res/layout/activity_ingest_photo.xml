@@ -10,7 +10,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
-        android:text="@string/button_edgeDetect" />
+        android:text="@string/button_edgeDetect" 
+        android:onClick="edgeDetect" />
 
     <jp.co.cyberagent.android.gpuimage.GPUImageView
         android:id="@+id/imageView"
