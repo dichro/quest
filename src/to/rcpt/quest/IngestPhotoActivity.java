@@ -1,5 +1,6 @@
 package to.rcpt.quest;
 
+import jp.co.cyberagent.android.gpuimage.GPUImage;
 import jp.co.cyberagent.android.gpuimage.GPUImageThresholdEdgeDetection;
 import jp.co.cyberagent.android.gpuimage.GPUImageView;
 import android.app.Activity;
@@ -33,6 +34,7 @@ public class IngestPhotoActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_ingest_photo);
 		imageView = (GPUImageView) findViewById(R.id.gpuImageView);
+		imageView.setScaleType(GPUImage.ScaleType.CENTER_INSIDE);
 		SeekBar seekBar = (SeekBar) findViewById(R.id.seekBar);
 		// TODO(dichro): filter defaults to a threshold of 0.9, but the current
 		// value isn't extractable. Fix it; use it.
