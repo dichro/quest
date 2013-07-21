@@ -1,6 +1,6 @@
 package to.rcpt.quest;
 
-import jp.co.cyberagent.android.gpuimage.GPUImageSobelEdgeDetection;
+import jp.co.cyberagent.android.gpuimage.GPUImageThresholdEdgeDetection;
 import jp.co.cyberagent.android.gpuimage.GPUImageView;
 import android.app.Activity;
 import android.content.Intent;
@@ -18,6 +18,7 @@ import android.provider.MediaStore.Images.Media;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.widget.SeekBar;
 import android.widget.Toast;
 
 public class IngestPhotoActivity extends Activity {
@@ -25,23 +26,44 @@ public class IngestPhotoActivity extends Activity {
 	private static final String[] PATH = new String[] { Media.DATA,
 			ImageColumns.ORIENTATION };
 	private GPUImageView imageView;
+	private GPUImageThresholdEdgeDetection filter = new GPUImageThresholdEdgeDetection();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_ingest_photo);
-		imageView = (GPUImageView) findViewById(R.id.imageView);
+		imageView = (GPUImageView) findViewById(R.id.gpuImageView);
+		SeekBar seekBar = (SeekBar) findViewById(R.id.seekBar);
+		// TODO(dichro): filter defaults to a threshold of 0.9, but the current
+		// value isn't extractable. Fix it; use it.
+		seekBar.setProgress(90);
+		seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+			@Override
+			public void onStopTrackingTouch(SeekBar seekBar) {
+			}
+
+			@Override
+			public void onStartTrackingTouch(SeekBar seekBar) {
+			}
+
+			@Override
+			public void onProgressChanged(SeekBar seekBar, int progress,
+					boolean fromUser) {
+				filter.setThreshold(progress / (float) seekBar.getMax());
+				imageView.requestRender();
+			}
+		});
 	}
 
 	public void edgeDetect(View view) {
-		imageView.setFilter(new GPUImageSobelEdgeDetection());
+		imageView.setFilter(filter);
 	}
 
 	private class ImageHandler extends AsyncTask<Uri, Integer, Bitmap> {
 		@Override
 		protected Bitmap doInBackground(Uri... uris) {
 			Uri uri = uris[0];
-			Log.i(TAG, "Got " + uri);
+			Log.i(TAG, "Received URI " + uri);
 			// TODO(dichro): handle things other than "content://"
 			Cursor cursor = getContentResolver().query(uri, PATH, null, null,
 					null);
@@ -59,11 +81,15 @@ public class IngestPhotoActivity extends Activity {
 				toast("Failed to load image", Toast.LENGTH_SHORT);
 				return null;
 			}
-			// constraints: ImageView can only render 2048x2048 bitmaps.
-			// inScaleFactor is rounded down to the nearest power of two.
+			// constraints: ImageView can only render bitmaps no larger than
+			// 2048x2048. inScaleFactor is rounded down to the nearest power of
+			// two by Bitmap.decodeFile.
 			int scaleFactor = (int) Math.pow(
+					2,
 					Math.ceil(Math.log(Math.max(o.outWidth / 2048.0,
-							o.outHeight / 2048.0)) / Math.log(2)), 2);
+							o.outHeight / 2048.0)) / Math.log(2)));
+			Log.i(TAG, "Downsampling " + o.outWidth + "x" + o.outHeight
+					+ " image by " + scaleFactor);
 			o.inJustDecodeBounds = false;
 			o.inSampleSize = scaleFactor;
 			o.inPurgeable = true;
