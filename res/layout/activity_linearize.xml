@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".IngestPhotoActivity" >
+    tools:context=".LinearizeActivity" >
 
     <Button
         android:id="@+id/button_edgeDetect"
@@ -12,6 +12,15 @@
         android:layout_alignParentLeft="true"
         android:text="@string/button_edgeDetect" 
         android:onClick="edgeDetect" />
+
+    <Button
+        android:id="@+id/button_finish"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:text="@string/button_edgeDetect" 
+        android:onClick="finishImage" />
 
     <jp.co.cyberagent.android.gpuimage.GPUImageView
         android:id="@+id/gpuImageView"
@@ -28,8 +37,9 @@
         android:id="@+id/seekBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
         android:layout_below="@id/gpuImageView"
-        android:layout_toRightOf="@id/button_edgeDetect" />
+        android:layout_toLeftOf="@id/button_finish"
+        android:layout_toRightOf="@id/button_edgeDetect"
+         />
     
 </RelativeLayout>

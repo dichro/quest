@@ -22,7 +22,7 @@ import android.view.View;
 import android.widget.SeekBar;
 import android.widget.Toast;
 
-public class IngestPhotoActivity extends Activity {
+public class LinearizeActivity extends Activity {
 	private static final String TAG = "IngestPhotoActivity";
 	private static final String[] PATH = new String[] { Media.DATA,
 			ImageColumns.ORIENTATION };
@@ -32,7 +32,7 @@ public class IngestPhotoActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_ingest_photo);
+		setContentView(R.layout.activity_linearize);
 		imageView = (GPUImageView) findViewById(R.id.gpuImageView);
 		imageView.setScaleType(GPUImage.ScaleType.CENTER_INSIDE);
 		SeekBar seekBar = (SeekBar) findViewById(R.id.seekBar);
@@ -59,6 +59,9 @@ public class IngestPhotoActivity extends Activity {
 
 	public void edgeDetect(View view) {
 		imageView.setFilter(filter);
+	}
+
+	public void finishImage(View view) {
 	}
 
 	private class ImageHandler extends AsyncTask<Uri, Integer, Bitmap> {
@@ -137,7 +140,7 @@ public class IngestPhotoActivity extends Activity {
 		// TODO(dichro): resolve this weakreference stuff
 		@Override
 		public void handleMessage(Message msg) {
-			Toast.makeText(IngestPhotoActivity.this, (String) msg.obj, msg.what)
+			Toast.makeText(LinearizeActivity.this, (String) msg.obj, msg.what)
 					.show();
 		}
 	};
