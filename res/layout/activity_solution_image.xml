@@ -1,23 +1,24 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<RelativeLayout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".SolutionImageActivity" >
 
-        <LinearLayout
-            style="?buttonBarStyle"
-            android:layout_width="match_parent"
+        <ToggleButton
+            android:id="@+id/drawState"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|center_horizontal"
-            android:background="@color/black_overlay"
-            android:orientation="horizontal"
-            tools:ignore="UselessParent" >
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:text="@string/erase" />
 
-    <to.rcpt.quest.ErasingView
-        android:id="@+id/erasingView"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-         />
+        <to.rcpt.quest.ErasingView
+            android:id="@+id/erasingView"
+            android:layout_width="wrap_content"
+            android:layout_height="481dp"
+            android:layout_above="@+id/drawState"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true" />
 
-        </LinearLayout>
-</FrameLayout>
+</RelativeLayout>

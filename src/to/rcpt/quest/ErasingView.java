@@ -75,8 +75,18 @@ public class ErasingView extends View {
 		mPath.reset();
 	}
 
+	private boolean erasing = false;
+
+	public void setErasing(boolean erasing) {
+		this.erasing = erasing;
+	}
+
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
+		if (!erasing) {
+			return true;
+		}
+
 		float x = event.getX();
 		float y = event.getY();
 
