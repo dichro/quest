@@ -25,11 +25,13 @@ public class ErasingView extends View {
 		mPaint = new Paint();
 		mPaint.setAntiAlias(true);
 		mPaint.setDither(true);
-		mPaint.setColor(0xFFFF0000);
+		mPaint.setColor(0xFFFFFFFF);
 		mPaint.setStyle(Paint.Style.STROKE);
 		mPaint.setStrokeJoin(Paint.Join.ROUND);
 		mPaint.setStrokeCap(Paint.Cap.ROUND);
 		mPaint.setStrokeWidth(12);
+		mBitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
+		mCanvas = new Canvas(mBitmap);
 	}
 
 	public void setBitmap(Bitmap b) {
@@ -40,8 +42,6 @@ public class ErasingView extends View {
 
 	@Override
 	protected void onDraw(Canvas canvas) {
-		canvas.drawColor(0xFFAAAAAA);
-
 		canvas.drawBitmap(mBitmap, 0, 0, mBitmapPaint);
 
 		canvas.drawPath(mPath, mPaint);
