@@ -11,6 +11,7 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -34,7 +35,7 @@ public class ErasingView extends View implements MultiTouchObjectCanvas<Bitmap> 
 		mPaint = new Paint();
 		mPaint.setAntiAlias(true);
 		mPaint.setDither(true);
-		mPaint.setColor(0xFFFFFFFF);
+		mPaint.setColor(0xFFFF0000);
 		mPaint.setStyle(Paint.Style.STROKE);
 		mPaint.setStrokeJoin(Paint.Join.ROUND);
 		mPaint.setStrokeCap(Paint.Cap.ROUND);
@@ -44,13 +45,26 @@ public class ErasingView extends View implements MultiTouchObjectCanvas<Bitmap> 
 		multiTouch = new MultiTouchController<Bitmap>(this);
 		matrix = new Matrix();
 		matrix.reset();
+		setBackgroundColor(0xFFFFFFFF);
 	}
 
 	public void setBitmap(Bitmap b) {
 		mBitmap = b;
 		mCanvas = new Canvas(mBitmap);
-		// matrix.setRectToRect(src, dst, stf)
 		invalidate();
+	}
+
+	@Override
+	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+		super.onSizeChanged(w, h, oldw, oldh);
+		if (w == 0 || h == 0) {
+			return;
+		}
+		if (!matrix.setRectToRect(
+				new RectF(0, 0, mBitmap.getWidth(), mBitmap.getHeight()),
+				new RectF(0, 0, w, h), Matrix.ScaleToFit.CENTER)) {
+			matrix.reset();
+		}
 	}
 
 	@Override
@@ -145,12 +159,10 @@ public class ErasingView extends View implements MultiTouchObjectCanvas<Bitmap> 
 		float yOff = newObjPosAndScale.getYOff();
 		float scale = newObjPosAndScale.getScale();
 		Log.i(TAG, "sPAS " + xOff + ", " + yOff + " x " + scale);
-		Matrix m = new Matrix();
-		m.setScale(scale, scale);
-		m.postTranslate(xOff, yOff);
-		matrix = m;
+		matrix.setScale(scale, scale);
+		matrix.postTranslate(xOff, yOff);
 		float[] values = new float[9];
-		m.getValues(values);
+		matrix.getValues(values);
 		Log.i(TAG, "?? " + values[Matrix.MTRANS_X] + ", "
 				+ values[Matrix.MTRANS_Y] + " x " + values[Matrix.MSCALE_X]);
 		invalidate();
