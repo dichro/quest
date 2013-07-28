@@ -20,37 +20,42 @@ import android.view.View;
 public class ErasingView extends View implements MultiTouchObjectCanvas<Bitmap> {
 	private static final String TAG = "ErasingView";
 	private final MultiTouchController<Bitmap> multiTouch;
-	private Matrix matrix;
-	private Bitmap mBitmap;
-	private Canvas mCanvas;
+	/** defines what part of the bitmap is currently displayed */
+	private Matrix zoomMatrix;
+	/** the bitmap being edited by this view */
+	private Bitmap editableBitmap;
+	/** the canvas that edits the bitmap */
+	private Canvas editableCanvas;
 	private Path mPath;
-	private Paint mBitmapPaint;
-	private Paint mPaint;
+	/** renders the bitmap onto the View's canvas */
+	private Paint renderPaint;
+	/** defines the area being erased by user action */
+	private Paint erasingPaint;
 
 	public ErasingView(Context c, AttributeSet attrs) {
 		super(c, attrs);
 
 		mPath = new Path();
-		mBitmapPaint = new Paint(Paint.DITHER_FLAG);
-		mPaint = new Paint();
-		mPaint.setAntiAlias(true);
-		mPaint.setDither(true);
-		mPaint.setColor(0xFFFF0000);
-		mPaint.setStyle(Paint.Style.STROKE);
-		mPaint.setStrokeJoin(Paint.Join.ROUND);
-		mPaint.setStrokeCap(Paint.Cap.ROUND);
-		mPaint.setStrokeWidth(12);
-		mBitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
-		mCanvas = new Canvas(mBitmap);
+		renderPaint = new Paint(Paint.DITHER_FLAG);
+		erasingPaint = new Paint();
+		erasingPaint.setAntiAlias(true);
+		erasingPaint.setDither(true);
+		erasingPaint.setColor(0xFFFF0000);
+		erasingPaint.setStyle(Paint.Style.STROKE);
+		erasingPaint.setStrokeJoin(Paint.Join.ROUND);
+		erasingPaint.setStrokeCap(Paint.Cap.ROUND);
+		erasingPaint.setStrokeWidth(12);
+		editableBitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
+		editableCanvas = new Canvas(editableBitmap);
 		multiTouch = new MultiTouchController<Bitmap>(this);
-		matrix = new Matrix();
-		matrix.reset();
+		zoomMatrix = new Matrix();
+		zoomMatrix.reset();
 		setBackgroundColor(0xFFFFFFFF);
 	}
 
 	public void setBitmap(Bitmap b) {
-		mBitmap = b;
-		mCanvas = new Canvas(mBitmap);
+		editableBitmap = b;
+		editableCanvas = new Canvas(editableBitmap);
 		invalidate();
 	}
 
@@ -60,17 +65,17 @@ public class ErasingView extends View implements MultiTouchObjectCanvas<Bitmap> 
 		if (w == 0 || h == 0) {
 			return;
 		}
-		if (!matrix.setRectToRect(
-				new RectF(0, 0, mBitmap.getWidth(), mBitmap.getHeight()),
+		if (!zoomMatrix.setRectToRect(new RectF(0, 0,
+				editableBitmap.getWidth(), editableBitmap.getHeight()),
 				new RectF(0, 0, w, h), Matrix.ScaleToFit.CENTER)) {
-			matrix.reset();
+			zoomMatrix.reset();
 		}
 	}
 
 	@Override
 	protected void onDraw(Canvas canvas) {
-		canvas.drawBitmap(mBitmap, matrix, mBitmapPaint);
-		canvas.drawPath(mPath, mPaint);
+		canvas.drawBitmap(editableBitmap, zoomMatrix, renderPaint);
+		canvas.drawPath(mPath, erasingPaint);
 	}
 
 	private float mX, mY;
@@ -96,12 +101,12 @@ public class ErasingView extends View implements MultiTouchObjectCanvas<Bitmap> 
 	private void touch_up() {
 		mPath.lineTo(mX, mY);
 		Matrix inverse = new Matrix();
-		if (!matrix.invert(inverse)) {
+		if (!zoomMatrix.invert(inverse)) {
 			inverse.reset();
 		}
-		mCanvas.setMatrix(inverse);
+		editableCanvas.setMatrix(inverse);
 		// commit the path to our offscreen
-		mCanvas.drawPath(mPath, mPaint);
+		editableCanvas.drawPath(mPath, erasingPaint);
 		// kill this so we don't double draw
 		mPath.reset();
 	}
@@ -142,14 +147,14 @@ public class ErasingView extends View implements MultiTouchObjectCanvas<Bitmap> 
 	@Override
 	public Bitmap getDraggableObjectAtPoint(PointInfo touchPoint) {
 		Log.i(TAG, "gDOAP");
-		return mBitmap;
+		return editableBitmap;
 	}
 
 	@Override
 	public void getPositionAndScale(Bitmap obj,
 			PositionAndScale objPosAndScaleOut) {
 		float[] values = new float[9];
-		matrix.getValues(values);
+		zoomMatrix.getValues(values);
 		Log.i(TAG, "gPAS " + values[Matrix.MTRANS_X] + ", "
 				+ values[Matrix.MTRANS_Y] + " x " + values[Matrix.MSCALE_X]);
 		objPosAndScaleOut.set(values[Matrix.MTRANS_X], values[Matrix.MTRANS_Y],
@@ -163,10 +168,10 @@ public class ErasingView extends View implements MultiTouchObjectCanvas<Bitmap> 
 		float yOff = newObjPosAndScale.getYOff();
 		float scale = newObjPosAndScale.getScale();
 		Log.i(TAG, "sPAS " + xOff + ", " + yOff + " x " + scale);
-		matrix.setScale(scale, scale);
-		matrix.postTranslate(xOff, yOff);
+		zoomMatrix.setScale(scale, scale);
+		zoomMatrix.postTranslate(xOff, yOff);
 		float[] values = new float[9];
-		matrix.getValues(values);
+		zoomMatrix.getValues(values);
 		Log.i(TAG, "?? " + values[Matrix.MTRANS_X] + ", "
 				+ values[Matrix.MTRANS_Y] + " x " + values[Matrix.MSCALE_X]);
 		invalidate();
