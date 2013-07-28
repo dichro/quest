@@ -1,16 +1,23 @@
 package to.rcpt.quest;
 
+import org.metalev.multitouch.controller.MultiTouchController;
+import org.metalev.multitouch.controller.MultiTouchController.MultiTouchObjectCanvas;
+import org.metalev.multitouch.controller.MultiTouchController.PointInfo;
+import org.metalev.multitouch.controller.MultiTouchController.PositionAndScale;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
-public class ErasingView extends View {
+public class ErasingView extends View implements MultiTouchObjectCanvas<Bitmap> {
 	private static final String TAG = "ErasingView";
+	private final MultiTouchController<Bitmap> multiTouch;
 	private Bitmap mBitmap;
 	private Canvas mCanvas;
 	private Path mPath;
@@ -32,6 +39,7 @@ public class ErasingView extends View {
 		mPaint.setStrokeWidth(12);
 		mBitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
 		mCanvas = new Canvas(mBitmap);
+		multiTouch = new MultiTouchController<Bitmap>(this);
 	}
 
 	public void setBitmap(Bitmap b) {
@@ -84,6 +92,7 @@ public class ErasingView extends View {
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		if (!erasing) {
+			multiTouch.onTouchEvent(event);
 			return true;
 		}
 
@@ -105,5 +114,36 @@ public class ErasingView extends View {
 			break;
 		}
 		return true;
+	}
+
+	@Override
+	public Bitmap getDraggableObjectAtPoint(PointInfo touchPoint) {
+		Log.i(TAG, "gDOAP");
+		return mBitmap;
+	}
+
+	float xOffset = 0, yOffset = 0, zoom = 1;
+
+	@Override
+	public void getPositionAndScale(Bitmap obj,
+			PositionAndScale objPosAndScaleOut) {
+		Log.i(TAG, "gPAS");
+		objPosAndScaleOut.set(xOffset, yOffset, true, zoom, false, 0, 0, false,
+				0);
+	}
+
+	@Override
+	public boolean setPositionAndScale(Bitmap obj,
+			PositionAndScale newObjPosAndScale, PointInfo touchPoint) {
+		Log.i(TAG,
+				"sPAS " + newObjPosAndScale.getXOff() + ", "
+						+ newObjPosAndScale.getYOff() + " x "
+						+ newObjPosAndScale.getScale());
+		return false;
+	}
+
+	@Override
+	public void selectObject(Bitmap obj, PointInfo touchPoint) {
+		Log.i(TAG, "sO");
 	}
 }
