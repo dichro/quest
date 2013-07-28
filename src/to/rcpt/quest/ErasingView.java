@@ -11,6 +11,8 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -29,28 +31,38 @@ public class ErasingView extends View implements MultiTouchObjectCanvas<Bitmap> 
 	private Path mPath;
 	/** renders the bitmap onto the View's canvas */
 	private Paint renderPaint;
-	/** defines the area being erased by user action */
-	private Paint erasingPaint;
+	/** shows the path to be erased by user action */
+	private Paint pathPaint;
+	/** erases from the bitmap */
+	private Paint erasePaint;
 
 	public ErasingView(Context c, AttributeSet attrs) {
 		super(c, attrs);
 
 		mPath = new Path();
 		renderPaint = new Paint(Paint.DITHER_FLAG);
-		erasingPaint = new Paint();
-		erasingPaint.setAntiAlias(true);
-		erasingPaint.setDither(true);
-		erasingPaint.setColor(0xFFFF0000);
-		erasingPaint.setStyle(Paint.Style.STROKE);
-		erasingPaint.setStrokeJoin(Paint.Join.ROUND);
-		erasingPaint.setStrokeCap(Paint.Cap.ROUND);
-		erasingPaint.setStrokeWidth(12);
+		erasePaint = new Paint();
+		configurePaint(erasePaint);
+		erasePaint.setColor(0xFFFFFFFF);
+		pathPaint = new Paint();
+		configurePaint(pathPaint);
+		pathPaint.setColor(0x80FF0000);
+		pathPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_ATOP));
 		editableBitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
 		editableCanvas = new Canvas(editableBitmap);
 		multiTouch = new MultiTouchController<Bitmap>(this);
 		zoomMatrix = new Matrix();
 		zoomMatrix.reset();
 		setBackgroundColor(0xFFFFFFFF);
+	}
+
+	private void configurePaint(Paint pathPaint) {
+		pathPaint.setAntiAlias(true);
+		pathPaint.setDither(true);
+		pathPaint.setStyle(Paint.Style.STROKE);
+		pathPaint.setStrokeJoin(Paint.Join.ROUND);
+		pathPaint.setStrokeCap(Paint.Cap.ROUND);
+		pathPaint.setStrokeWidth(24);
 	}
 
 	public void setBitmap(Bitmap b) {
@@ -75,7 +87,7 @@ public class ErasingView extends View implements MultiTouchObjectCanvas<Bitmap> 
 	@Override
 	protected void onDraw(Canvas canvas) {
 		canvas.drawBitmap(editableBitmap, zoomMatrix, renderPaint);
-		canvas.drawPath(mPath, erasingPaint);
+		canvas.drawPath(mPath, pathPaint);
 	}
 
 	private float mX, mY;
@@ -106,7 +118,7 @@ public class ErasingView extends View implements MultiTouchObjectCanvas<Bitmap> 
 		}
 		editableCanvas.setMatrix(inverse);
 		// commit the path to our offscreen
-		editableCanvas.drawPath(mPath, erasingPaint);
+		editableCanvas.drawPath(mPath, erasePaint);
 		// kill this so we don't double draw
 		mPath.reset();
 	}
