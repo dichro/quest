@@ -70,7 +70,6 @@ public class ErasingView extends View implements MultiTouchObjectCanvas<Bitmap> 
 	@Override
 	protected void onDraw(Canvas canvas) {
 		canvas.drawBitmap(mBitmap, matrix, mBitmapPaint);
-
 		canvas.drawPath(mPath, mPaint);
 	}
 
@@ -96,6 +95,11 @@ public class ErasingView extends View implements MultiTouchObjectCanvas<Bitmap> 
 
 	private void touch_up() {
 		mPath.lineTo(mX, mY);
+		Matrix inverse = new Matrix();
+		if (!matrix.invert(inverse)) {
+			inverse.reset();
+		}
+		mCanvas.setMatrix(inverse);
 		// commit the path to our offscreen
 		mCanvas.drawPath(mPath, mPaint);
 		// kill this so we don't double draw
