@@ -8,6 +8,7 @@ import org.metalev.multitouch.controller.MultiTouchController.PositionAndScale;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.AttributeSet;
@@ -18,6 +19,7 @@ import android.view.View;
 public class ErasingView extends View implements MultiTouchObjectCanvas<Bitmap> {
 	private static final String TAG = "ErasingView";
 	private final MultiTouchController<Bitmap> multiTouch;
+	private Matrix matrix;
 	private Bitmap mBitmap;
 	private Canvas mCanvas;
 	private Path mPath;
@@ -40,17 +42,20 @@ public class ErasingView extends View implements MultiTouchObjectCanvas<Bitmap> 
 		mBitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
 		mCanvas = new Canvas(mBitmap);
 		multiTouch = new MultiTouchController<Bitmap>(this);
+		matrix = new Matrix();
+		matrix.reset();
 	}
 
 	public void setBitmap(Bitmap b) {
 		mBitmap = b;
 		mCanvas = new Canvas(mBitmap);
+		// matrix.setRectToRect(src, dst, stf)
 		invalidate();
 	}
 
 	@Override
 	protected void onDraw(Canvas canvas) {
-		canvas.drawBitmap(mBitmap, 0, 0, mBitmapPaint);
+		canvas.drawBitmap(mBitmap, matrix, mBitmapPaint);
 
 		canvas.drawPath(mPath, mPaint);
 	}
@@ -122,24 +127,34 @@ public class ErasingView extends View implements MultiTouchObjectCanvas<Bitmap> 
 		return mBitmap;
 	}
 
-	float xOffset = 0, yOffset = 0, zoom = 1;
-
 	@Override
 	public void getPositionAndScale(Bitmap obj,
 			PositionAndScale objPosAndScaleOut) {
-		Log.i(TAG, "gPAS");
-		objPosAndScaleOut.set(xOffset, yOffset, true, zoom, false, 0, 0, false,
-				0);
+		float[] values = new float[9];
+		matrix.getValues(values);
+		Log.i(TAG, "gPAS " + values[Matrix.MTRANS_X] + ", "
+				+ values[Matrix.MTRANS_Y] + " x " + values[Matrix.MSCALE_X]);
+		objPosAndScaleOut.set(values[Matrix.MTRANS_X], values[Matrix.MTRANS_Y],
+				true, values[Matrix.MSCALE_X], false, 0, 0, false, 0);
 	}
 
 	@Override
 	public boolean setPositionAndScale(Bitmap obj,
 			PositionAndScale newObjPosAndScale, PointInfo touchPoint) {
-		Log.i(TAG,
-				"sPAS " + newObjPosAndScale.getXOff() + ", "
-						+ newObjPosAndScale.getYOff() + " x "
-						+ newObjPosAndScale.getScale());
-		return false;
+		float xOff = newObjPosAndScale.getXOff();
+		float yOff = newObjPosAndScale.getYOff();
+		float scale = newObjPosAndScale.getScale();
+		Log.i(TAG, "sPAS " + xOff + ", " + yOff + " x " + scale);
+		Matrix m = new Matrix();
+		m.setScale(scale, scale);
+		m.postTranslate(xOff, yOff);
+		matrix = m;
+		float[] values = new float[9];
+		m.getValues(values);
+		Log.i(TAG, "?? " + values[Matrix.MTRANS_X] + ", "
+				+ values[Matrix.MTRANS_Y] + " x " + values[Matrix.MSCALE_X]);
+		invalidate();
+		return true;
 	}
 
 	@Override
