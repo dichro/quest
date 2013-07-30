@@ -26,7 +26,7 @@ public class ErasingView extends View implements MultiTouchObjectCanvas<Bitmap> 
 	private Matrix zoomMatrix;
 	/** the bitmap being edited by this view */
 	private Bitmap editableBitmap;
-	/** the canvas that edits the bitmap */
+	/** the (off-screen) canvas that edits the bitmap */
 	private Canvas editableCanvas;
 	private Path mPath;
 	/** renders the bitmap onto the View's canvas */
@@ -48,6 +48,7 @@ public class ErasingView extends View implements MultiTouchObjectCanvas<Bitmap> 
 		configurePaint(pathPaint);
 		pathPaint.setColor(0x80FF0000);
 		pathPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_ATOP));
+		// temporary bitmap, will be replaced by any arriving intent
 		editableBitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
 		editableCanvas = new Canvas(editableBitmap);
 		multiTouch = new MultiTouchController<Bitmap>(this);
@@ -112,10 +113,13 @@ public class ErasingView extends View implements MultiTouchObjectCanvas<Bitmap> 
 
 	private void touch_up() {
 		mPath.lineTo(mX, mY);
+		// calculate transform from screen co-ordinates to bitmap co-ordinates
 		Matrix inverse = new Matrix();
 		if (!zoomMatrix.invert(inverse)) {
 			inverse.reset();
 		}
+		// set the transform before we draw the path, which is in screen
+		// co-ordinates
 		editableCanvas.setMatrix(inverse);
 		// commit the path to our offscreen
 		editableCanvas.drawPath(mPath, erasePaint);
