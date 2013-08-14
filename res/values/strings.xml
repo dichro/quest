@@ -11,5 +11,6 @@
     <string name="erase">Erase</string>
     <string name="title_activity_clue_image">ClueImageActivity</string>
     <string name="action_settings">Settings</string>
+    <string name="next">Next</string>
 
 </resources>

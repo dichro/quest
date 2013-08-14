@@ -21,4 +21,13 @@
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true" />
 
+        <Button
+            android:id="@+id/next"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_toRightOf="@+id/drawState"
+            android:onClick="goNext"
+            android:text="@string/next" />
+
 </RelativeLayout>

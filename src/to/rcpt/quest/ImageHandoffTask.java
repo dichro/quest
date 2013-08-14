@@ -18,36 +18,35 @@ import android.util.Log;
  */
 public class ImageHandoffTask extends
 		AsyncTask<Object, Integer, ByteArrayOutputStream> {
+	public static interface HasBitmap {
+		Bitmap getBitmap();
+	}
+
 	private static final String TAG = "ImageHandoffTask";
-	private final GPUImageView imageView;
+	private final HasBitmap bitmapSource;
 	private final Toaster toast;
 	private final Context originContext;
 	private final Class<?> destinationClass;
 
 	public ImageHandoffTask(Context originContext,
 			Class<? extends Activity> destinationClass, Toaster toast,
-			GPUImageView imageView) {
+			HasBitmap bitmapSource) {
 		this.originContext = originContext;
 		this.destinationClass = destinationClass;
 		this.toast = toast;
-		this.imageView = imageView;
+		this.bitmapSource = bitmapSource;
 	}
 
 	@Override
 	protected ByteArrayOutputStream doInBackground(Object... arg0) {
-		try {
-			Bitmap b = imageView.capture(512, 512);
-			// TODO(dichro): save it somewhere instead
-			ByteArrayOutputStream bs = new ByteArrayOutputStream();
-			if (!b.compress(Bitmap.CompressFormat.PNG, 100, bs)) {
-				toast.s("PNG conversion failed");
-				return null;
-			}
-			return bs;
-		} catch (InterruptedException e) {
-			toast.l("Image save interrupted");
+		Bitmap b = bitmapSource.getBitmap();
+		// TODO(dichro): save it somewhere instead
+		ByteArrayOutputStream bs = new ByteArrayOutputStream();
+		if (!b.compress(Bitmap.CompressFormat.PNG, 100, bs)) {
+			toast.s("PNG conversion failed");
 			return null;
 		}
+		return bs;
 	}
 
 	protected void onPostExecute(ByteArrayOutputStream bs) {

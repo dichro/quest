@@ -21,7 +21,8 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.SeekBar;
 
-public class LinearizeActivity extends Activity {
+public class LinearizeActivity extends Activity implements
+		ImageHandoffTask.HasBitmap {
 	private static final String TAG = "IngestPhotoActivity";
 	private static final String[] PATH = new String[] { Media.DATA,
 			ImageColumns.ORIENTATION };
@@ -66,8 +67,8 @@ public class LinearizeActivity extends Activity {
 	}
 
 	public void finishImage(View view) {
-		new ImageHandoffTask(this, SolutionImageActivity.class, toast,
-				imageView).execute();
+		new ImageHandoffTask(this, SolutionImageActivity.class, toast, this)
+				.execute();
 	}
 
 	private class ImageHandler extends AsyncTask<Uri, Integer, Bitmap> {
@@ -140,5 +141,15 @@ public class LinearizeActivity extends Activity {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.activity_ingest_photo, menu);
 		return true;
+	}
+
+	@Override
+	public Bitmap getBitmap() {
+		try {
+			return imageView.capture(512, 512);
+		} catch (InterruptedException e) {
+			toast.l("Image save interrupted");
+			return null;
+		}
 	}
 }
