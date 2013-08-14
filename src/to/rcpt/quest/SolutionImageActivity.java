@@ -11,14 +11,18 @@ import android.view.WindowManager;
 import android.widget.CompoundButton;
 
 public class SolutionImageActivity extends Activity {
+	private Toaster toast;
+	private ErasingView erasingView;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		toast = new Toaster(this);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		setContentView(R.layout.activity_solution_image);
-		final ErasingView erasingView = (ErasingView) findViewById(R.id.erasingView);
+		erasingView = (ErasingView) findViewById(R.id.erasingView);
 		CompoundButton drawState = (CompoundButton) findViewById(R.id.drawState);
 		drawState
 				.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -41,6 +45,7 @@ public class SolutionImageActivity extends Activity {
 	}
 
 	public void goNext(View v) {
-
+		new ImageHandoffTask(this, ClueImageActivity.class, toast, erasingView)
+				.execute();
 	}
 }

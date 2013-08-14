@@ -19,7 +19,8 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
-public class ErasingView extends View implements MultiTouchObjectCanvas<Bitmap> {
+public class ErasingView extends View implements
+		MultiTouchObjectCanvas<Bitmap>, ImageHandoffTask.HasBitmap {
 	private static final String TAG = "ErasingView";
 	private final MultiTouchController<Bitmap> multiTouch;
 	/** defines what part of the bitmap is currently displayed */
@@ -197,5 +198,10 @@ public class ErasingView extends View implements MultiTouchObjectCanvas<Bitmap> 
 	@Override
 	public void selectObject(Bitmap obj, PointInfo touchPoint) {
 		Log.i(TAG, "sO");
+	}
+
+	@Override
+	public Bitmap getBitmap() {
+		return editableBitmap;
 	}
 }
