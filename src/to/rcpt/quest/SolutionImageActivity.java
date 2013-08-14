@@ -24,14 +24,7 @@ public class SolutionImageActivity extends Activity {
 		setContentView(R.layout.activity_solution_image);
 		erasingView = (ErasingView) findViewById(R.id.erasingView);
 		CompoundButton drawState = (CompoundButton) findViewById(R.id.drawState);
-		drawState
-				.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-					@Override
-					public void onCheckedChanged(CompoundButton view,
-							boolean erasing) {
-						erasingView.setErasing(erasing);
-					}
-				});
+		drawState.setOnCheckedChangeListener(erasingView);
 	}
 
 	@Override

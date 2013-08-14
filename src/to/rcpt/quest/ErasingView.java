@@ -18,6 +18,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.CompoundButton;
 
 /**
  * A scrollable, zoomable, modal view for erasing portions of a bitmap.
@@ -25,7 +26,8 @@ import android.view.View;
  * @author Miki Habryn <dichro@rcpt.to>
  */
 public class ErasingView extends View implements
-		MultiTouchObjectCanvas<Bitmap>, ImageHandoffTask.HasBitmap {
+		MultiTouchObjectCanvas<Bitmap>, ImageHandoffTask.HasBitmap,
+		CompoundButton.OnCheckedChangeListener {
 	private static final String TAG = "ErasingView";
 	private final MultiTouchController<Bitmap> multiTouch;
 	/** defines what part of the bitmap is currently displayed */
@@ -208,5 +210,10 @@ public class ErasingView extends View implements
 	@Override
 	public Bitmap getBitmap() {
 		return editableBitmap;
+	}
+
+	@Override
+	public void onCheckedChanged(CompoundButton view, boolean checked) {
+		setErasing(checked);
 	}
 }
