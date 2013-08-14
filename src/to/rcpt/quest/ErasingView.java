@@ -19,6 +19,11 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
+/**
+ * A scrollable, zoomable, modal view for erasing portions of a bitmap.
+ * 
+ * @author Miki Habryn <dichro@rcpt.to>
+ */
 public class ErasingView extends View implements
 		MultiTouchObjectCanvas<Bitmap>, ImageHandoffTask.HasBitmap {
 	private static final String TAG = "ErasingView";
@@ -49,7 +54,7 @@ public class ErasingView extends View implements
 		configurePaint(pathPaint);
 		pathPaint.setColor(0x80FF0000);
 		pathPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_ATOP));
-		// temporary bitmap, will be replaced by any arriving intent
+		// temporary bitmap, will be replaced by setBitmap()
 		editableBitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
 		editableCanvas = new Canvas(editableBitmap);
 		multiTouch = new MultiTouchController<Bitmap>(this);
@@ -58,13 +63,13 @@ public class ErasingView extends View implements
 		setBackgroundColor(0xFFFFFFFF);
 	}
 
-	private void configurePaint(Paint pathPaint) {
-		pathPaint.setAntiAlias(true);
-		pathPaint.setDither(true);
-		pathPaint.setStyle(Paint.Style.STROKE);
-		pathPaint.setStrokeJoin(Paint.Join.ROUND);
-		pathPaint.setStrokeCap(Paint.Cap.ROUND);
-		pathPaint.setStrokeWidth(24);
+	private void configurePaint(Paint p) {
+		p.setAntiAlias(true);
+		p.setDither(true);
+		p.setStyle(Paint.Style.STROKE);
+		p.setStrokeJoin(Paint.Join.ROUND);
+		p.setStrokeCap(Paint.Cap.ROUND);
+		p.setStrokeWidth(24);
 	}
 
 	public void setBitmap(Bitmap b) {
