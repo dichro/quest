@@ -29,12 +29,11 @@ public class ImageHandoffTask extends
 	private final Class<?> destinationClass;
 
 	public ImageHandoffTask(Context originContext,
-			Class<? extends Activity> destinationClass, Toaster toast,
-			HasBitmap bitmapSource) {
+			Class<? extends Activity> destinationClass, HasBitmap bitmapSource) {
 		this.originContext = originContext;
 		this.destinationClass = destinationClass;
-		this.toast = toast;
 		this.bitmapSource = bitmapSource;
+		this.toast = new Toaster(originContext);
 	}
 
 	@Override

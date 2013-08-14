@@ -67,7 +67,7 @@ public class LinearizeActivity extends Activity implements
 	}
 
 	public void finishImage(View view) {
-		new ImageHandoffTask(this, SolutionImageActivity.class, toast, this)
+		new ImageHandoffTask(this, SolutionImageActivity.class, this)
 				.execute();
 	}
 
