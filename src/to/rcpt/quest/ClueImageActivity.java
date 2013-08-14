@@ -9,14 +9,14 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.CompoundButton;
 
-public class SolutionImageActivity extends Activity {
+public class ClueImageActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		setContentView(R.layout.activity_solution_image);
+		setContentView(R.layout.activity_clue_image);
 		final ErasingView erasingView = (ErasingView) findViewById(R.id.erasingView);
 		CompoundButton drawState = (CompoundButton) findViewById(R.id.drawState);
 		drawState

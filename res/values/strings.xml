@@ -9,5 +9,7 @@
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
     <string name="erase">Erase</string>
+    <string name="title_activity_clue_image">ClueImageActivity</string>
+    <string name="action_settings">Settings</string>
 
 </resources>

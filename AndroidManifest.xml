@@ -33,6 +33,10 @@
             android:name="to.rcpt.quest.SolutionImageActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" >
         </activity>
+        <activity
+            android:name="to.rcpt.quest.ClueImageActivity"
+            android:label="@string/title_activity_clue_image" >
+        </activity>
     </application>
 
 </manifest>
