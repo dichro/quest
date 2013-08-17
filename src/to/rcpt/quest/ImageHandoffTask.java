@@ -11,6 +11,8 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.provider.BaseColumns;
+import android.util.Pair;
 
 /**
  * An {@link AsyncTask} to send a {@link Bitmap} via an {@link Intent} to a new
@@ -18,7 +20,8 @@ import android.os.Environment;
  * 
  * @author Miki Habryn <dichro@rcpt.to>
  */
-public class ImageHandoffTask extends AsyncTask<Object, Integer, Uri> {
+public abstract class ImageHandoffTask extends
+		AsyncTask<Object, Integer, Pair<Uri, Long>> {
 	public static interface HasBitmap {
 		Bitmap getBitmap();
 
@@ -45,7 +48,7 @@ public class ImageHandoffTask extends AsyncTask<Object, Integer, Uri> {
 	}
 
 	@Override
-	protected Uri doInBackground(Object... args) {
+	protected Pair<Uri, Long> doInBackground(Object... args) {
 		Bitmap b = bitmapSource.getBitmap();
 		File dir = new File(Environment.getExternalStorageDirectory(), SUBDIR);
 		if (!dir.exists() && !dir.mkdirs()) {
@@ -63,16 +66,21 @@ public class ImageHandoffTask extends AsyncTask<Object, Integer, Uri> {
 			toast.s("File/directory not found: " + file.getAbsolutePath());
 			return null;
 		}
-		return Uri.fromFile(file);
+		Uri uri = Uri.fromFile(file);
+		return Pair.create(uri,
+				updateDb(new Metadata.Helper(originContext), uri));
 	}
 
+	protected abstract long updateDb(Metadata.Helper helper, Uri uri);
+
 	@Override
-	protected void onPostExecute(Uri uri) {
+	protected void onPostExecute(Pair<Uri, Long> uri) {
 		if (uri == null) {
 			return;
 		}
-		Intent i = new Intent(Intent.ACTION_SENDTO, uri, originContext,
+		Intent i = new Intent(Intent.ACTION_SENDTO, uri.first, originContext,
 				destinationClass);
+		i.putExtra(BaseColumns._ID, uri.second);
 		originContext.startActivity(i);
 	}
 }

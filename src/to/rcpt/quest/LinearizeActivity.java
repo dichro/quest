@@ -67,8 +67,12 @@ public class LinearizeActivity extends Activity implements
 	}
 
 	public void finishImage(View view) {
-		new ImageHandoffTask(this, SolutionImageActivity.class, this, "base")
-				.execute();
+		new ImageHandoffTask(this, SolutionImageActivity.class, this, "base") {
+			@Override
+			protected long updateDb(Metadata.Helper helper, Uri uri) {
+				return helper.newImage(uri);
+			}
+		}.execute();
 	}
 
 	private class ImageHandler extends AsyncTask<Uri, Integer, Bitmap> {
