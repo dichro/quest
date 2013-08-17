@@ -74,6 +74,7 @@ public class ErasingView extends View implements
 		p.setStrokeWidth(24);
 	}
 
+	@Override
 	public void setBitmap(Bitmap b) {
 		editableBitmap = b;
 		editableCanvas = new Canvas(editableBitmap);

@@ -23,7 +23,7 @@ import android.widget.SeekBar;
 
 public class LinearizeActivity extends Activity implements
 		ImageHandoffTask.HasBitmap {
-	private static final String TAG = "IngestPhotoActivity";
+	private static final String TAG = LinearizeActivity.class.getName();
 	private static final String[] PATH = new String[] { Media.DATA,
 			ImageColumns.ORIENTATION };
 	private GPUImageView imageView;
@@ -67,7 +67,7 @@ public class LinearizeActivity extends Activity implements
 	}
 
 	public void finishImage(View view) {
-		new ImageHandoffTask(this, SolutionImageActivity.class, this)
+		new ImageHandoffTask(this, SolutionImageActivity.class, this, "base")
 				.execute();
 	}
 
@@ -120,7 +120,7 @@ public class LinearizeActivity extends Activity implements
 		protected void onPostExecute(Bitmap bm) {
 			if (bm != null) {
 				Log.i(TAG, "rendering " + bm.getWidth() + "x" + bm.getHeight());
-				imageView.setImage(bm);
+				setBitmap(bm);
 			}
 		}
 	}
@@ -151,5 +151,9 @@ public class LinearizeActivity extends Activity implements
 			toast.l("Image save interrupted");
 			return null;
 		}
+	}
+
+	public void setBitmap(Bitmap bm) {
+		imageView.setImage(bm);
 	}
 }

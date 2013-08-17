@@ -1,9 +1,7 @@
 package to.rcpt.quest;
 
 import android.app.Activity;
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
@@ -12,10 +10,12 @@ import android.widget.CompoundButton;
 
 public class SolutionImageActivity extends Activity {
 	private ErasingView erasingView;
+	private Toaster toast;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		toast = new Toaster(this);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -28,15 +28,16 @@ public class SolutionImageActivity extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		ErasingView erasingView = (ErasingView) findViewById(R.id.erasingView);
-		Intent i = getIntent();
-		byte[] bytes = i.getByteArrayExtra("image");
-		Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-		erasingView.setBitmap(bitmap.copy(bitmap.getConfig(), true));
+		Uri uri = getIntent().getData();
+		if (uri == null) {
+			toast.s("No URI received?");
+			return;
+		}
+		new ImageLoadingTask(toast, erasingView).execute(uri);
 	}
 
 	public void goNext(View v) {
-		new ImageHandoffTask(this, ClueImageActivity.class, erasingView)
-				.execute();
+		new ImageHandoffTask(this, ClueImageActivity.class, erasingView,
+				"solution").execute();
 	}
 }
