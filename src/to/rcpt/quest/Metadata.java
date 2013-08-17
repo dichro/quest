@@ -57,10 +57,19 @@ public final class Metadata {
 			}
 		}
 
-		public long newImage(Uri uri) {
+		public long newImage(Uri originalUri, Uri linearizedUri) {
 			ContentValues values = new ContentValues();
-			values.put(Images.ORIGINAL, uri.toString());
+			values.put(Images.ORIGINAL, originalUri.toString());
+			values.put(Images.LINEARIZED, linearizedUri.toString());
 			return getWritableDatabase().insert(TABLE_NAME, null, values);
+		}
+
+		public void setSolutionImage(long id, Uri uri) {
+			ContentValues values = new ContentValues();
+			values.put(Images.SOLUTION, uri.toString());
+			getWritableDatabase().update(TABLE_NAME, values,
+					BaseColumns._ID + " = ?",
+					new String[] { String.valueOf(id) });
 		}
 	}
 

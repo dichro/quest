@@ -29,6 +29,7 @@ public class LinearizeActivity extends Activity implements
 	private GPUImageView imageView;
 	private GPUImageThresholdEdgeDetection filter = new GPUImageThresholdEdgeDetection();
 	private Toaster toast;
+	private Uri originalUri;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -70,7 +71,7 @@ public class LinearizeActivity extends Activity implements
 		new ImageHandoffTask(this, SolutionImageActivity.class, this, "base") {
 			@Override
 			protected long updateDb(Metadata.Helper helper, Uri uri) {
-				return helper.newImage(uri);
+				return helper.newImage(originalUri, uri);
 			}
 		}.execute();
 	}
@@ -135,8 +136,8 @@ public class LinearizeActivity extends Activity implements
 		Intent intent = getIntent();
 		Log.i(TAG, "resume " + intent);
 		if (Intent.ACTION_SEND.equals(intent.getAction())) {
-			Uri uri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
-			new ImageHandler().execute(uri);
+			originalUri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
+			new ImageHandler().execute(originalUri);
 		}
 	}
 

@@ -34,7 +34,6 @@ public class SolutionImageActivity extends Activity {
 		super.onResume();
 		Intent intent = getIntent();
 		dbId = intent.getLongExtra(BaseColumns._ID, -1);
-		toast.s("Have id " + dbId);
 		Uri uri = intent.getData();
 		if (uri == null) {
 			toast.s("No URI received?");
@@ -48,8 +47,8 @@ public class SolutionImageActivity extends Activity {
 				"solution") {
 			@Override
 			protected long updateDb(Helper helper, Uri uri) {
-				// TODO Auto-generated method stub
-				return 0;
+				helper.setSolutionImage(dbId, uri);
+				return dbId;
 			}
 		}.execute();
 	}
