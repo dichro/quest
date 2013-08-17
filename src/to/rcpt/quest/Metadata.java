@@ -2,11 +2,15 @@ package to.rcpt.quest;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Loader;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 import android.provider.BaseColumns;
 import android.util.Log;
+
+import com.commonsware.cwac.loaderex.SQLiteCursorLoader;
 
 public final class Metadata {
 	public static String TABLE_NAME = "Metadata";
@@ -35,9 +39,12 @@ public final class Metadata {
 
 	public static class Helper extends SQLiteOpenHelper {
 		private static final String TAG = ImageHandoffTask.class.getName();
+		private final Context context; // TODO(dichro): does this need a
+										// weakreference?
 
-		public Helper(Context ctx) {
-			super(ctx, FILE_NAME, null, SETUP_COMMANDS.length);
+		public Helper(Context context) {
+			super(context, FILE_NAME, null, SETUP_COMMANDS.length);
+			this.context = context;
 		}
 
 		@Override
@@ -71,6 +78,13 @@ public final class Metadata {
 					BaseColumns._ID + " = ?",
 					new String[] { String.valueOf(id) });
 		}
+
+		public Loader<Cursor> getLoader() {
+			return new SQLiteCursorLoader(context, this,
+					SQLBuilder.select(TABLE_NAME, BaseColumns._ID,
+							Images.ORIGINAL, Images.LINEARIZED,
+							Images.SOLUTION, Images.CLUE).toString(), null);
+		}
 	}
 
 	static class SQLBuilder {
@@ -96,6 +110,19 @@ public final class Metadata {
 		SQLBuilder textColumn(String columnName) {
 			leading.append(columnName).append(" TEXT,");
 			return this;
+		}
+
+		static SQLBuilder select(String tableName, String firstColumn,
+				String... otherColumns) {
+			StringBuilder columns = new StringBuilder();
+			for (String column : otherColumns) {
+				columns.append(",").append(column);
+			}
+			SQLBuilder sb = new SQLBuilder();
+			sb.leading.append("SELECT ").append(firstColumn)
+					.append(columns.toString()).append(" FROM ")
+					.append(tableName);
+			return sb;
 		}
 	}
 }
