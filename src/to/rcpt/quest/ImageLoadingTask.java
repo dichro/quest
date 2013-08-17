@@ -34,7 +34,6 @@ public class ImageLoadingTask extends AsyncTask<Uri, Integer, Bitmap> {
 				toast.s("Not readable: " + path);
 				return null;
 			}
-			toast.s(uri.toString() + " " + path);
 			try {
 				FileInputStream in = new FileInputStream(f);
 				Bitmap bitmap = BitmapFactory

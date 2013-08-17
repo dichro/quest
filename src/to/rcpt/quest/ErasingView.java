@@ -15,7 +15,6 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.CompoundButton;
@@ -171,7 +170,6 @@ public class ErasingView extends View implements
 
 	@Override
 	public Bitmap getDraggableObjectAtPoint(PointInfo touchPoint) {
-		Log.i(TAG, "gDOAP");
 		return editableBitmap;
 	}
 
@@ -180,8 +178,6 @@ public class ErasingView extends View implements
 			PositionAndScale objPosAndScaleOut) {
 		float[] values = new float[9];
 		zoomMatrix.getValues(values);
-		Log.i(TAG, "gPAS " + values[Matrix.MTRANS_X] + ", "
-				+ values[Matrix.MTRANS_Y] + " x " + values[Matrix.MSCALE_X]);
 		objPosAndScaleOut.set(values[Matrix.MTRANS_X], values[Matrix.MTRANS_Y],
 				true, values[Matrix.MSCALE_X], false, 0, 0, false, 0);
 	}
@@ -192,20 +188,16 @@ public class ErasingView extends View implements
 		float xOff = newObjPosAndScale.getXOff();
 		float yOff = newObjPosAndScale.getYOff();
 		float scale = newObjPosAndScale.getScale();
-		Log.i(TAG, "sPAS " + xOff + ", " + yOff + " x " + scale);
 		zoomMatrix.setScale(scale, scale);
 		zoomMatrix.postTranslate(xOff, yOff);
 		float[] values = new float[9];
 		zoomMatrix.getValues(values);
-		Log.i(TAG, "?? " + values[Matrix.MTRANS_X] + ", "
-				+ values[Matrix.MTRANS_Y] + " x " + values[Matrix.MSCALE_X]);
 		invalidate();
 		return true;
 	}
 
 	@Override
 	public void selectObject(Bitmap obj, PointInfo touchPoint) {
-		Log.i(TAG, "sO");
 	}
 
 	@Override
