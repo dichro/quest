@@ -72,8 +72,16 @@ public final class Metadata {
 		}
 
 		public void setSolutionImage(long id, Uri uri) {
+			setImage(Images.SOLUTION, id, uri);
+		}
+
+		public void setClueImage(long id, Uri uri) {
+			setImage(Images.CLUE, id, uri);
+		}
+
+		private void setImage(String columnName, long id, Uri uri) {
 			ContentValues values = new ContentValues();
-			values.put(Images.SOLUTION, uri.toString());
+			values.put(columnName, uri.toString());
 			getWritableDatabase().update(TABLE_NAME, values,
 					BaseColumns._ID + " = ?",
 					new String[] { String.valueOf(id) });
