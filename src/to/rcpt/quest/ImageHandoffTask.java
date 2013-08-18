@@ -3,6 +3,7 @@ package to.rcpt.quest;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.lang.ref.WeakReference;
 
 import android.app.Activity;
 import android.content.Context;
@@ -31,25 +32,29 @@ public abstract class ImageHandoffTask extends
 	private static final String TAG = ImageHandoffTask.class.getName();
 	private static final String SUBDIR = ImageHandoffTask.class.getPackage()
 			.getName();
-	private final HasBitmap bitmapSource;
+	private final WeakReference<HasBitmap> bitmapSource;
 	private final Toaster toast;
-	private final Context originContext;
+	private final WeakReference<Context> originContext;
 	private final Class<?> destinationClass;
 	private final String fileName;
 
 	public ImageHandoffTask(Context originContext,
 			Class<? extends Activity> destinationClass, HasBitmap bitmapSource,
 			String fileName) {
-		this.originContext = originContext;
+		this.originContext = new WeakReference<Context>(originContext);
 		this.destinationClass = destinationClass;
-		this.bitmapSource = bitmapSource;
+		this.bitmapSource = new WeakReference<HasBitmap>(bitmapSource);
 		this.fileName = fileName;
 		this.toast = new Toaster(originContext);
 	}
 
 	@Override
 	protected Pair<Uri, Long> doInBackground(Object... args) {
-		Bitmap b = bitmapSource.getBitmap();
+		HasBitmap bs = bitmapSource.get();
+		if (bs == null) {
+			return null;
+		}
+		Bitmap b = bs.getBitmap();
 		File dir = new File(Environment.getExternalStorageDirectory(), SUBDIR);
 		if (!dir.exists() && !dir.mkdirs()) {
 			toast.s("Couldn't create: " + dir.getAbsolutePath());
@@ -67,8 +72,11 @@ public abstract class ImageHandoffTask extends
 			return null;
 		}
 		Uri uri = Uri.fromFile(file);
-		return Pair.create(uri,
-				updateDb(new Metadata.Helper(originContext), uri));
+		Context ctx = originContext.get();
+		if (ctx == null) {
+			return null;
+		}
+		return Pair.create(uri, updateDb(new Metadata.Helper(ctx), uri));
 	}
 
 	protected abstract long updateDb(Metadata.Helper helper, Uri uri);
@@ -78,9 +86,13 @@ public abstract class ImageHandoffTask extends
 		if (uri == null) {
 			return;
 		}
-		Intent i = new Intent(Intent.ACTION_SENDTO, uri.first, originContext,
+		Context ctx = originContext.get();
+		if (ctx == null) {
+			return;
+		}
+		Intent i = new Intent(Intent.ACTION_SENDTO, uri.first, ctx,
 				destinationClass);
 		i.putExtra(BaseColumns._ID, uri.second);
-		originContext.startActivity(i);
+		ctx.startActivity(i);
 	}
 }

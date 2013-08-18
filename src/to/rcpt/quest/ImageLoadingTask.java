@@ -4,7 +4,9 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.lang.ref.WeakReference;
 
+import to.rcpt.quest.ImageHandoffTask.HasBitmap;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -12,11 +14,12 @@ import android.os.AsyncTask;
 
 public class ImageLoadingTask extends AsyncTask<Uri, Integer, Bitmap> {
 	private final Toaster toast;
-	private final ImageHandoffTask.HasBitmap hasBitmap;
+	private final WeakReference<ImageHandoffTask.HasBitmap> hasBitmap;
 
 	public ImageLoadingTask(Toaster toast, ImageHandoffTask.HasBitmap hasBitmap) {
 		this.toast = toast;
-		this.hasBitmap = hasBitmap;
+		this.hasBitmap = new WeakReference<ImageHandoffTask.HasBitmap>(
+				hasBitmap);
 	}
 
 	@Override
@@ -58,6 +61,9 @@ public class ImageLoadingTask extends AsyncTask<Uri, Integer, Bitmap> {
 		if (uri == null) {
 			return;
 		}
-		hasBitmap.setBitmap(uri);
+		HasBitmap hb = hasBitmap.get();
+		if (hb != null) {
+			hb.setBitmap(uri);
+		}
 	}
 }

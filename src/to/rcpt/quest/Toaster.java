@@ -13,7 +13,6 @@ import android.widget.Toast;
  * @author Miki Habryn <dichro@rcpt.to>
  */
 public class Toaster extends Handler {
-	// TODO(dichro): confirm this weakreference stuff
 	private final WeakReference<Context> context;
 
 	public Toaster(Context context) {
@@ -22,8 +21,10 @@ public class Toaster extends Handler {
 
 	@Override
 	public void handleMessage(Message msg) {
-		// TODO(dichro): verify the weak reference
-		Toast.makeText(context.get(), (String) msg.obj, msg.what).show();
+		Context ctx = context.get();
+		if (ctx != null) {
+			Toast.makeText(ctx, (String) msg.obj, msg.what).show();
+		}
 	}
 
 	public void toast(int duration, String msg) {
