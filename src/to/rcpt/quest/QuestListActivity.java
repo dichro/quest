@@ -2,9 +2,12 @@ package to.rcpt.quest;
 
 import android.app.ListActivity;
 import android.app.LoaderManager;
+import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.BaseColumns;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.View;
 
@@ -27,7 +30,47 @@ public class QuestListActivity extends ListActivity implements
 	}
 
 	public void editImage(View v) {
-		toast.s("editImage " + v.getId());
+		int[] loc = new int[2];
+		v.getLocationInWindow(loc);
+		int pos = getListView().pointToPosition(loc[0], loc[1]);
+		long rowId = adapter.getItemId(pos);
+		Cursor c = (Cursor) adapter.getItem(pos);
+		switch (v.getId()) {
+		case R.id.clue:
+			if (editImage(ClueImageActivity.class, c, rowId,
+					Metadata.Images.CLUE)) {
+				return;
+			}
+		case R.id.solution:
+			if (editImage(SolutionImageActivity.class, c, rowId,
+					Metadata.Images.SOLUTION)) {
+				return;
+			}
+		case R.id.linearized:
+			if (editImage(LinearizeActivity.class, c, rowId,
+					Metadata.Images.LINEARIZED)) {
+				return;
+			}
+		case R.id.original:
+			if (!editImage(LinearizeActivity.class, c, rowId,
+					Metadata.Images.ORIGINAL)) {
+				toast.s("Couldn't load any images to edit!");
+			}
+		}
+	}
+
+	private boolean editImage(Class<?> cls, Cursor c, long rowId,
+			String columnName) {
+		int columnIndex = c.getColumnIndex(Metadata.Images.CLUE);
+		if (c.isNull(columnIndex)) {
+			return false;
+		}
+		Intent i = new Intent(Intent.ACTION_SENDTO, Uri.parse(c
+				.getString(columnIndex)), this, cls);
+		i.putExtra(BaseColumns._ID, rowId);
+		startActivity(i);
+		return true;
+
 	}
 
 	@Override
