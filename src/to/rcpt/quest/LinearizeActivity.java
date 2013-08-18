@@ -5,12 +5,8 @@ import jp.co.cyberagent.android.gpuimage.GPUImageThresholdEdgeDetection;
 import jp.co.cyberagent.android.gpuimage.GPUImageView;
 import android.app.Activity;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore.Images.ImageColumns;
 import android.provider.MediaStore.Images.Media;
@@ -76,60 +72,6 @@ public class LinearizeActivity extends Activity implements
 		}.execute();
 	}
 
-	private class ImageHandler extends AsyncTask<Uri, Integer, Bitmap> {
-		@Override
-		protected Bitmap doInBackground(Uri... uris) {
-			Uri uri = uris[0];
-			Log.i(TAG, "Received URI " + uri);
-			// TODO(dichro): handle things other than "content://"
-			Cursor cursor = getContentResolver().query(uri, PATH, null, null,
-					null);
-			cursor.moveToFirst();
-			String path = cursor.getString(cursor.getColumnIndex(Media.DATA));
-			int orientation = cursor.getInt(cursor
-					.getColumnIndex(ImageColumns.ORIENTATION));
-			cursor.close();
-			// downsample
-			BitmapFactory.Options o = new BitmapFactory.Options();
-			o.inJustDecodeBounds = true;
-			BitmapFactory.decodeFile(path, o);
-			Log.i(TAG, path + ": " + o.outWidth + "x" + o.outHeight);
-			if (o.outWidth == 0 || o.outHeight == 0) {
-				toast.s("Failed to load image");
-				return null;
-			}
-			// constraints: ImageView can only render bitmaps no larger than
-			// 2048x2048. inScaleFactor is rounded down to the nearest power of
-			// two by Bitmap.decodeFile.
-			int scaleFactor = (int) Math.pow(
-					2,
-					Math.ceil(Math.log(Math.max(o.outWidth / 2048.0,
-							o.outHeight / 2048.0)) / Math.log(2)));
-			Log.i(TAG, "Downsampling " + o.outWidth + "x" + o.outHeight
-					+ " image by " + scaleFactor);
-			o.inJustDecodeBounds = false;
-			o.inSampleSize = scaleFactor;
-			o.inPurgeable = true;
-			o.inInputShareable = true;
-			Bitmap bm = BitmapFactory.decodeFile(path, o);
-			if (orientation > 0) {
-				Matrix rotate = new Matrix();
-				rotate.postRotate(orientation);
-				bm = Bitmap.createBitmap(bm, 0, 0, bm.getWidth(),
-						bm.getHeight(), rotate, true);
-			}
-			return bm;
-		}
-
-		@Override
-		protected void onPostExecute(Bitmap bm) {
-			if (bm != null) {
-				Log.i(TAG, "rendering " + bm.getWidth() + "x" + bm.getHeight());
-				setBitmap(bm);
-			}
-		}
-	}
-
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -137,7 +79,7 @@ public class LinearizeActivity extends Activity implements
 		Log.i(TAG, "resume " + intent);
 		if (Intent.ACTION_SEND.equals(intent.getAction())) {
 			originalUri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
-			new ImageHandler().execute(originalUri);
+			new ImageLoadingTask(this, this).execute(originalUri);
 		}
 	}
 

@@ -39,7 +39,7 @@ public class ClueImageActivity extends Activity {
 			toast.s("No URI received?");
 			return;
 		}
-		new ImageLoadingTask(toast, erasingView).execute(uri);
+		new ImageLoadingTask(this, erasingView).execute(uri);
 	}
 
 	public void goNext(View v) {
