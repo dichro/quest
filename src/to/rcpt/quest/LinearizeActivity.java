@@ -79,7 +79,8 @@ public class LinearizeActivity extends Activity implements
 		Log.i(TAG, "resume " + intent);
 		if (Intent.ACTION_SEND.equals(intent.getAction())) {
 			originalUri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
-			new ImageLoadingTask(this, this).execute(originalUri);
+			new ImageLoadingTask.HasBitmap(this, this, 2048)
+					.execute(originalUri);
 		}
 	}
 

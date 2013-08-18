@@ -5,16 +5,37 @@ import android.app.LoaderManager;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.BaseColumns;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.View;
+import android.widget.ImageView;
 
 public class QuestListActivity extends ListActivity implements
 		LoaderManager.LoaderCallbacks<Cursor> {
 	private SimpleCursorAdapter adapter;
 	private Toaster toast;
+
+	private final SimpleCursorAdapter.ViewBinder viewBinder = new SimpleCursorAdapter.ViewBinder() {
+		@Override
+		public boolean setViewValue(final View view, Cursor cursor, int columnIndex) {
+			if (cursor.isNull(columnIndex)) {
+				return true;
+			}
+			if (view instanceof ImageView) {
+				new ImageLoadingTask(QuestListActivity.this, 256) {
+					@Override
+					protected void onPostExecute(Bitmap bm) {
+						((ImageView) view).setImageBitmap(bm);
+					}
+				}.execute(Uri.parse(cursor.getString(columnIndex)));
+				return true;
+			}
+			return false;
+		}
+	};
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -26,6 +47,7 @@ public class QuestListActivity extends ListActivity implements
 						Metadata.Images.LINEARIZED, Metadata.Images.SOLUTION,
 						Metadata.Images.CLUE }, new int[] { R.id.original,
 						R.id.linearized, R.id.solution, R.id.clue }, 0);
+		adapter.setViewBinder(viewBinder);
 		setListAdapter(adapter);
 	}
 

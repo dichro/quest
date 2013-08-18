@@ -39,7 +39,7 @@ public class SolutionImageActivity extends Activity {
 			toast.s("No URI received?");
 			return;
 		}
-		new ImageLoadingTask(this, erasingView).execute(uri);
+		new ImageLoadingTask.HasBitmap(this, erasingView, 2048).execute(uri);
 	}
 
 	public void goNext(View v) {

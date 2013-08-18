@@ -6,7 +6,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.lang.ref.WeakReference;
 
-import to.rcpt.quest.ImageHandoffTask.HasBitmap;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -18,19 +17,18 @@ import android.provider.MediaStore.Images.ImageColumns;
 import android.provider.MediaStore.Images.Media;
 import android.util.Log;
 
-public class ImageLoadingTask extends AsyncTask<Uri, Integer, Bitmap> {
+public abstract class ImageLoadingTask extends AsyncTask<Uri, Integer, Bitmap> {
 	private static final String TAG = ImageLoadingTask.class.getName();
 	private static final String[] CONTENT_PROJECTION = new String[] {
 			Media.DATA, ImageColumns.ORIENTATION };
 	private final Toaster toast;
-	private final WeakReference<ImageHandoffTask.HasBitmap> hasBitmap;
 	private final WeakReference<Context> context;
+	private double maxDimension;
 
-	public ImageLoadingTask(Context ctx, ImageHandoffTask.HasBitmap hasBitmap) {
+	public ImageLoadingTask(Context ctx, double maxDimension) {
 		this.toast = new Toaster(ctx);
 		this.context = new WeakReference<Context>(ctx);
-		this.hasBitmap = new WeakReference<ImageHandoffTask.HasBitmap>(
-				hasBitmap);
+		this.maxDimension = maxDimension;
 	}
 
 	@Override
@@ -67,13 +65,10 @@ public class ImageLoadingTask extends AsyncTask<Uri, Integer, Bitmap> {
 			toast.s("Failed to load image");
 			return null;
 		}
-		// constraints: ImageView can only render bitmaps no larger than
-		// 2048x2048. inScaleFactor is rounded down to the nearest power of
-		// two by Bitmap.decodeFile.
 		int scaleFactor = (int) Math.pow(
 				2,
-				Math.ceil(Math.log(Math.max(o.outWidth / 2048.0,
-						o.outHeight / 2048.0)) / Math.log(2)));
+				Math.ceil(Math.log(Math.max(o.outWidth / maxDimension,
+						o.outHeight / maxDimension)) / Math.log(2)));
 		Log.i(TAG, "Downsampling " + o.outWidth + "x" + o.outHeight
 				+ " image by " + scaleFactor);
 		o.inJustDecodeBounds = false;
@@ -124,14 +119,27 @@ public class ImageLoadingTask extends AsyncTask<Uri, Integer, Bitmap> {
 		return null;
 	}
 
-	@Override
-	protected void onPostExecute(Bitmap bm) {
-		if (bm == null) {
-			return;
+	protected abstract void onPostExecute(Bitmap bm);
+
+	public static class HasBitmap extends ImageLoadingTask {
+		private final WeakReference<ImageHandoffTask.HasBitmap> hasBitmap;
+
+		public HasBitmap(Context ctx, ImageHandoffTask.HasBitmap hasBitmap,
+				double maxDimension) {
+			super(ctx, maxDimension);
+			this.hasBitmap = new WeakReference<ImageHandoffTask.HasBitmap>(
+					hasBitmap);
 		}
-		HasBitmap hb = hasBitmap.get();
-		if (hb != null) {
-			hb.setBitmap(bm);
+
+		@Override
+		protected void onPostExecute(Bitmap bm) {
+			if (bm == null) {
+				return;
+			}
+			ImageHandoffTask.HasBitmap hb = hasBitmap.get();
+			if (hb != null) {
+				hb.setBitmap(bm);
+			}
 		}
 	}
 }
