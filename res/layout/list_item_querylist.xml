@@ -1,0 +1,41 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content" >
+
+    <ImageView
+        android:id="@+id/original"
+        android:layout_width="0dp"
+        android:layout_weight=".25"
+        android:layout_height="wrap_content"
+        android:onClick="editImage"
+        android:scaleType="centerInside"
+        android:src="@android:drawable/ic_menu_help" />
+
+    <ImageView
+        android:id="@+id/linearized"
+        android:layout_width="0dp"
+        android:layout_weight=".25"
+        android:layout_height="wrap_content"
+        android:onClick="editImage"
+        android:scaleType="centerInside"
+        android:src="@android:drawable/ic_menu_help" />
+    
+    <ImageView
+        android:id="@+id/solution"
+        android:layout_width="0dp"
+        android:layout_weight=".25"
+        android:layout_height="wrap_content"
+        android:onClick="editImage"
+        android:scaleType="centerInside"
+        android:src="@android:drawable/ic_menu_help" />
+
+    <ImageView
+        android:id="@+id/clue"
+        android:layout_width="0dp"
+        android:layout_weight=".25"
+        android:layout_height="wrap_content"
+        android:onClick="editImage"
+        android:scaleType="centerInside"
+        android:src="@android:drawable/ic_menu_help" />
+
+</LinearLayout>
