@@ -20,7 +20,8 @@ public class QuestListActivity extends ListActivity implements
 
 	private final SimpleCursorAdapter.ViewBinder viewBinder = new SimpleCursorAdapter.ViewBinder() {
 		@Override
-		public boolean setViewValue(final View view, Cursor cursor, int columnIndex) {
+		public boolean setViewValue(final View view, Cursor cursor,
+				int columnIndex) {
 			if (cursor.isNull(columnIndex)) {
 				return true;
 			}
@@ -83,7 +84,7 @@ public class QuestListActivity extends ListActivity implements
 
 	private boolean editImage(Class<?> cls, Cursor c, long rowId,
 			String columnName) {
-		int columnIndex = c.getColumnIndex(Metadata.Images.CLUE);
+		int columnIndex = c.getColumnIndex(columnName);
 		if (c.isNull(columnIndex)) {
 			return false;
 		}
