@@ -2,11 +2,12 @@
     android:layout_width="fill_parent"
     android:layout_height="wrap_content" >
 
+        <!-- TODO(dichro): match_parent is wrong, but wrap_content makes it huge -->
     <ImageView
         android:id="@+id/original"
         android:layout_width="0dp"
         android:layout_weight=".25"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:onClick="editImage"
         android:scaleType="centerInside"
         android:src="@android:drawable/ic_menu_help" />

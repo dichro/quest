@@ -19,11 +19,9 @@ public class QuestListActivity extends ListActivity implements
 		toast = new Toaster(this);
 		getLoaderManager().initLoader(0, null, this);
 		adapter = new SimpleCursorAdapter(this, R.layout.list_item_querylist,
-				null, new String[] {
-						// Metadata.Images.ORIGINAL,
+				null, new String[] { Metadata.Images.ORIGINAL,
 						Metadata.Images.LINEARIZED, Metadata.Images.SOLUTION,
-						Metadata.Images.CLUE }, new int[] {
-						// R.id.original,
+						Metadata.Images.CLUE }, new int[] { R.id.original,
 						R.id.linearized, R.id.solution, R.id.clue }, 0);
 		setListAdapter(adapter);
 	}
