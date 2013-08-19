@@ -56,37 +56,10 @@ public abstract class ImageLoadingTask extends AsyncTask<Uri, Integer, Bitmap> {
 		int orientation = cursor.getInt(cursor
 				.getColumnIndex(ImageColumns.ORIENTATION));
 		cursor.close();
-		// downsample
-		BitmapFactory.Options o = new BitmapFactory.Options();
-		o.inJustDecodeBounds = true;
-		BitmapFactory.decodeFile(path, o);
-		Log.i(TAG, path + ": " + o.outWidth + "x" + o.outHeight);
-		if (o.outWidth == 0 || o.outHeight == 0) {
-			toast.s("Failed to load image");
-			return null;
-		}
-		int scaleFactor = (int) Math.pow(
-				2,
-				Math.ceil(Math.log(Math.max(o.outWidth / maxDimension,
-						o.outHeight / maxDimension)) / Math.log(2)));
-		Log.i(TAG, "Downsampling " + o.outWidth + "x" + o.outHeight
-				+ " image by " + scaleFactor);
-		o.inJustDecodeBounds = false;
-		o.inSampleSize = scaleFactor;
-		o.inPurgeable = true;
-		o.inInputShareable = true;
-		Bitmap bm = BitmapFactory.decodeFile(path, o);
-		if (orientation > 0) {
-			Matrix rotate = new Matrix();
-			rotate.postRotate(orientation);
-			bm = Bitmap.createBitmap(bm, 0, 0, bm.getWidth(), bm.getHeight(),
-					rotate, true);
-		}
-		return bm;
+		return loadFile(path, orientation);
 	}
 
-	private Bitmap loadFile(Uri uri) {
-		String path = uri.getPath();
+	private Bitmap loadFile(String path, int orientation) {
 		File f = new File(path);
 		if (!f.exists()) {
 			toast.s("Couldn't find file: " + path);
@@ -97,13 +70,34 @@ public abstract class ImageLoadingTask extends AsyncTask<Uri, Integer, Bitmap> {
 			return null;
 		}
 		try {
-			FileInputStream in = new FileInputStream(f);
-			Bitmap bitmap = BitmapFactory.decodeStream(new BufferedInputStream(
-					in));
-			if (bitmap == null) {
-				toast.s("Couldn't load image: " + path + " (" + f.length()
-						+ " bytes)");
+			BitmapFactory.Options o = new BitmapFactory.Options();
+			o.inJustDecodeBounds = true;
+			BitmapFactory.decodeStream(new BufferedInputStream(
+					new FileInputStream(f)), null, o);
+			Log.i(TAG, path + ": " + o.outWidth + "x" + o.outHeight);
+			if (o.outWidth == 0 || o.outHeight == 0) {
+				toast.s("Failed to load image");
 				return null;
+			}
+			int scaleFactor = (int) Math.pow(
+					2,
+					Math.ceil(Math.log(Math.max(o.outWidth / maxDimension,
+							o.outHeight / maxDimension)) / Math.log(2)));
+			Log.i(TAG, "Downsampling " + o.outWidth + "x" + o.outHeight
+					+ " image by " + scaleFactor);
+			o.inJustDecodeBounds = false;
+			o.inSampleSize = scaleFactor;
+			// TODO(dichro): pass in a flag to determine if bitmap should be
+			// mutable; set below appropriately; remove bitmap.copy.
+			o.inPurgeable = true;
+			o.inInputShareable = true;
+			Bitmap bitmap = BitmapFactory.decodeStream(new BufferedInputStream(
+					new FileInputStream(f)), null, o);
+			if (orientation > 0) {
+				Matrix rotate = new Matrix();
+				rotate.postRotate(orientation);
+				bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(),
+						bitmap.getHeight(), rotate, true);
 			}
 			if (!bitmap.isMutable()) {
 				bitmap = bitmap.copy(bitmap.getConfig(), true);
@@ -117,6 +111,11 @@ public abstract class ImageLoadingTask extends AsyncTask<Uri, Integer, Bitmap> {
 			toast.s("File not found: " + path);
 		}
 		return null;
+	}
+
+	private Bitmap loadFile(Uri uri) {
+		// TODO(dichro): EXIF orientation?
+		return loadFile(uri.getPath(), 0);
 	}
 
 	protected abstract void onPostExecute(Bitmap bm);
