@@ -21,12 +21,10 @@ public abstract class ImageLoadingTask extends AsyncTask<Uri, Integer, Bitmap> {
 	private static final String TAG = ImageLoadingTask.class.getName();
 	private static final String[] CONTENT_PROJECTION = new String[] {
 			Media.DATA, ImageColumns.ORIENTATION };
-	private final Toaster toast;
 	private final WeakReference<Context> context;
 	private double maxDimension;
 
 	public ImageLoadingTask(Context ctx, double maxDimension) {
-		this.toast = new Toaster(ctx);
 		this.context = new WeakReference<Context>(ctx);
 		this.maxDimension = maxDimension;
 	}
@@ -40,7 +38,7 @@ public abstract class ImageLoadingTask extends AsyncTask<Uri, Integer, Bitmap> {
 		} else if ("content".equals(scheme)) {
 			return loadContent(uri);
 		}
-		toast.s("Unknown URI scheme: " + scheme);
+		Toaster.s(context.get(), "Unknown URI scheme:", scheme);
 		return null;
 	}
 
@@ -62,11 +60,11 @@ public abstract class ImageLoadingTask extends AsyncTask<Uri, Integer, Bitmap> {
 	private Bitmap loadFile(String path, int orientation) {
 		File f = new File(path);
 		if (!f.exists()) {
-			toast.s("Couldn't find file: " + path);
+			Toaster.s(context.get(), "Couldn't find file:", path);
 			return null;
 		}
 		if (!f.canRead()) {
-			toast.s("Not readable: " + path);
+			Toaster.s(context.get(), "Not readable:", path);
 			return null;
 		}
 		try {
@@ -76,7 +74,7 @@ public abstract class ImageLoadingTask extends AsyncTask<Uri, Integer, Bitmap> {
 					new FileInputStream(f)), null, o);
 			Log.i(TAG, path + ": " + o.outWidth + "x" + o.outHeight);
 			if (o.outWidth == 0 || o.outHeight == 0) {
-				toast.s("Failed to load image");
+				Toaster.s(context.get(), "Failed to load image");
 				return null;
 			}
 			int scaleFactor = (int) Math.pow(
@@ -102,13 +100,14 @@ public abstract class ImageLoadingTask extends AsyncTask<Uri, Integer, Bitmap> {
 			if (!bitmap.isMutable()) {
 				bitmap = bitmap.copy(bitmap.getConfig(), true);
 				if (bitmap == null) {
-					toast.s("Failed to make a mutable copy of bitmap");
+					Toaster.s(context.get(),
+							"Failed to make a mutable copy of bitmap");
 					return null;
 				}
 			}
 			return bitmap;
 		} catch (FileNotFoundException e) {
-			toast.s("File not found: " + path);
+			Toaster.s(context.get(), "File not found:", path);
 		}
 		return null;
 	}

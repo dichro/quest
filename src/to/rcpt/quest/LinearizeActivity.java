@@ -8,8 +8,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore.Images.ImageColumns;
-import android.provider.MediaStore.Images.Media;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -20,17 +18,13 @@ import android.widget.SeekBar;
 public class LinearizeActivity extends Activity implements
 		ImageHandoffTask.HasBitmap {
 	private static final String TAG = LinearizeActivity.class.getName();
-	private static final String[] PATH = new String[] { Media.DATA,
-			ImageColumns.ORIENTATION };
 	private GPUImageView imageView;
 	private GPUImageThresholdEdgeDetection filter = new GPUImageThresholdEdgeDetection();
-	private Toaster toast;
 	private Uri originalUri;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		toast = new Toaster(this);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -96,7 +90,7 @@ public class LinearizeActivity extends Activity implements
 		try {
 			return imageView.capture(512, 512);
 		} catch (InterruptedException e) {
-			toast.l("Image save interrupted");
+			Toaster.s(this, "Image save interrupted");
 			return null;
 		}
 	}

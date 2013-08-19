@@ -16,7 +16,6 @@ import android.widget.ImageView;
 public class QuestListActivity extends ListActivity implements
 		LoaderManager.LoaderCallbacks<Cursor> {
 	private SimpleCursorAdapter adapter;
-	private Toaster toast;
 
 	private final SimpleCursorAdapter.ViewBinder viewBinder = new SimpleCursorAdapter.ViewBinder() {
 		@Override
@@ -41,7 +40,6 @@ public class QuestListActivity extends ListActivity implements
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		toast = new Toaster(this);
 		getLoaderManager().initLoader(0, null, this);
 		adapter = new SimpleCursorAdapter(this, R.layout.list_item_querylist,
 				null, new String[] { Metadata.Images.ORIGINAL,
@@ -77,7 +75,7 @@ public class QuestListActivity extends ListActivity implements
 		case R.id.original:
 			if (!editImage(LinearizeActivity.class, c, rowId,
 					Metadata.Images.ORIGINAL)) {
-				toast.s("Couldn't load any images to edit!");
+				Toaster.s(this, "Couldn't load any images to edit!");
 			}
 		}
 	}

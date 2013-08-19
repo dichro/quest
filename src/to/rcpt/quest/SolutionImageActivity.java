@@ -13,13 +13,11 @@ import android.widget.CompoundButton;
 
 public class SolutionImageActivity extends Activity {
 	private ErasingView erasingView;
-	private Toaster toast;
 	private long dbId;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		toast = new Toaster(this);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -36,7 +34,7 @@ public class SolutionImageActivity extends Activity {
 		dbId = intent.getLongExtra(BaseColumns._ID, -1);
 		Uri uri = intent.getData();
 		if (uri == null) {
-			toast.s("No URI received?");
+			Toaster.s(this, "No URI received?");
 			return;
 		}
 		new ImageLoadingTask.HasBitmap(this, erasingView, 2048).execute(uri);

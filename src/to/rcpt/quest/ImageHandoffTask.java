@@ -33,7 +33,6 @@ public abstract class ImageHandoffTask extends
 	private static final String SUBDIR = ImageHandoffTask.class.getPackage()
 			.getName();
 	private final WeakReference<HasBitmap> bitmapSource;
-	private final Toaster toast;
 	private final WeakReference<Context> originContext;
 	private final Class<?> destinationClass;
 	private final String fileName;
@@ -45,7 +44,6 @@ public abstract class ImageHandoffTask extends
 		this.destinationClass = destinationClass;
 		this.bitmapSource = new WeakReference<HasBitmap>(bitmapSource);
 		this.fileName = fileName;
-		this.toast = new Toaster(originContext);
 	}
 
 	@Override
@@ -57,18 +55,20 @@ public abstract class ImageHandoffTask extends
 		Bitmap b = bs.getBitmap();
 		File dir = new File(Environment.getExternalStorageDirectory(), SUBDIR);
 		if (!dir.exists() && !dir.mkdirs()) {
-			toast.s("Couldn't create: " + dir.getAbsolutePath());
+			Toaster.s(originContext.get(), "Couldn't create:",
+					dir.getAbsolutePath());
 			return null;
 		}
 		File file = new File(dir, fileName + ".png");
 		try {
 			if (!b.compress(Bitmap.CompressFormat.PNG, 100,
 					new FileOutputStream(file))) {
-				toast.s("PNG conversion failed");
+				Toaster.s(originContext.get(), "PNG conversion failed");
 				return null;
 			}
 		} catch (FileNotFoundException e) {
-			toast.s("File/directory not found: " + file.getAbsolutePath());
+			Toaster.s(originContext.get(), "File/directory not found:",
+					file.getAbsolutePath());
 			return null;
 		}
 		Uri uri = Uri.fromFile(file);

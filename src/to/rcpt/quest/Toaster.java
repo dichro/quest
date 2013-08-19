@@ -27,18 +27,31 @@ public class Toaster extends Handler {
 		}
 	}
 
-	public void toast(int duration, String msg) {
-		// TODO(dichro): consider passing in a Context?
-		sendMessage(obtainMessage(duration, msg));
+	public void toast(int duration, String msg, String... more) {
+		StringBuilder sb = new StringBuilder(msg);
+		for (String s : more) {
+			sb.append(" ").append(s);
+		}
+		sendMessage(obtainMessage(duration, sb.toString()));
 	}
 
-	public void s(String msg) {
-		// TODO(dichro): add an Object... args param and do something clever
-		// with it?
-		toast(Toast.LENGTH_SHORT, msg);
+	public void s(String msg, String... more) {
+		toast(Toast.LENGTH_SHORT, msg, more);
 	}
 
-	public void l(String msg) {
-		toast(Toast.LENGTH_LONG, msg);
+	public void l(String msg, String... more) {
+		toast(Toast.LENGTH_LONG, msg, more);
+	}
+
+	public static void s(Context context, String msg, String... more) {
+		if (context != null) {
+			new Toaster(context).s(msg, more);
+		}
+	}
+
+	public static void l(Context context, String msg, String... more) {
+		if (context != null) {
+			new Toaster(context).l(msg, more);
+		}
 	}
 }
