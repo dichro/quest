@@ -1,7 +1,9 @@
 package to.rcpt.quest;
 
+import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.app.LoaderManager;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
@@ -50,10 +52,33 @@ public class QuestListActivity extends ListActivity implements
 		setListAdapter(adapter);
 	}
 
+	public void deleteQuest(View v) {
+		int pos = viewToListPosition(v);
+		long rowId = adapter.getItemId(pos);
+		Cursor c = (Cursor) adapter.getItem(pos);
+		View dialog = getLayoutInflater().inflate(R.layout.dialog_delete_quest,
+				null);
+		dialog.findViewById(R.id.imageView1);
+		new AlertDialog.Builder(this)
+				.setView(dialog)
+				.setPositiveButton("Yes",
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
+								// TODO Auto-generated method stub
+							}
+						})
+				.setNegativeButton("No", new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						// TODO Auto-generated method stub
+					}
+				}).show();
+	}
+
 	public void editImage(View v) {
-		int[] loc = new int[2];
-		v.getLocationInWindow(loc);
-		int pos = getListView().pointToPosition(loc[0], loc[1]);
+		int pos = viewToListPosition(v);
 		long rowId = adapter.getItemId(pos);
 		Cursor c = (Cursor) adapter.getItem(pos);
 		switch (v.getId()) {
@@ -78,6 +103,13 @@ public class QuestListActivity extends ListActivity implements
 				Toaster.s(this, "Couldn't load any images to edit!");
 			}
 		}
+	}
+
+	private int viewToListPosition(View v) {
+		int[] loc = new int[2];
+		v.getLocationInWindow(loc);
+		int pos = getListView().pointToPosition(loc[0], loc[1]);
+		return pos;
 	}
 
 	private boolean editImage(Class<?> cls, Cursor c, long rowId,
