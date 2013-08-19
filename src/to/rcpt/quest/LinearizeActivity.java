@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.Window;
@@ -70,12 +69,15 @@ public class LinearizeActivity extends Activity implements
 	protected void onResume() {
 		super.onResume();
 		Intent intent = getIntent();
-		Log.i(TAG, "resume " + intent);
 		if (Intent.ACTION_SEND.equals(intent.getAction())) {
 			originalUri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
-			new ImageLoadingTask.HasBitmap(this, this, 2048)
-					.execute(originalUri);
+		} else if (Intent.ACTION_SENDTO.equals(intent.getAction())) {
+			originalUri = intent.getData();
+		} else {
+			Toaster.s(this, "Unknown intent received");
+			return;
 		}
+		new ImageLoadingTask.HasBitmap(this, this, 2048).execute(originalUri);
 	}
 
 	@Override
