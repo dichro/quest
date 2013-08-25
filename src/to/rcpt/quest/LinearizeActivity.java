@@ -3,6 +3,7 @@ package to.rcpt.quest;
 import jp.co.cyberagent.android.gpuimage.GPUImage;
 import jp.co.cyberagent.android.gpuimage.GPUImageThresholdEdgeDetection;
 import jp.co.cyberagent.android.gpuimage.GPUImageView;
+import to.rcpt.quest.Metadata.Helper;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -60,7 +61,13 @@ public class LinearizeActivity extends Activity implements
 		new ImageHandoffTask(this, SolutionImageActivity.class, this, "base") {
 			@Override
 			protected long updateDb(Metadata.Helper helper, Uri uri) {
-				return helper.newImage(originalUri, uri);
+				helper.setLinearizedImage(-1, uri);
+				return -1;
+			}
+
+			@Override
+			protected long getDbId(Helper helper) {
+				return helper.newImage(originalUri);
 			}
 		}.execute();
 	}

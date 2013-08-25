@@ -53,13 +53,10 @@ public abstract class ImageHandoffTask extends
 			return null;
 		}
 		Bitmap b = bs.getBitmap();
-		File dir = new File(Environment.getExternalStorageDirectory(), SUBDIR);
-		if (!dir.exists() && !dir.mkdirs()) {
-			Toaster.s(originContext.get(), "Couldn't create:",
-					dir.getAbsolutePath());
+		File file = getFile();
+		if (file == null) {
 			return null;
 		}
-		File file = new File(dir, fileName + ".png");
 		try {
 			if (!b.compress(Bitmap.CompressFormat.PNG, 100,
 					new FileOutputStream(file))) {
@@ -79,7 +76,24 @@ public abstract class ImageHandoffTask extends
 		return Pair.create(uri, updateDb(new Metadata.Helper(ctx), uri));
 	}
 
+	protected File getFile() {
+		File dir = new File(Environment.getExternalStorageDirectory(), SUBDIR);
+		if (!dir.exists() && !dir.mkdirs()) {
+			Toaster.s(originContext.get(), "Couldn't create:",
+					dir.getAbsolutePath());
+			return null;
+		}
+		Context ctx = originContext.get();
+		if (ctx == null) {
+			return null;
+		}
+		return new File(dir, getDbId(new Metadata.Helper(ctx)) + "-" + fileName
+				+ ".png");
+	}
+
 	protected abstract long updateDb(Metadata.Helper helper, Uri uri);
+
+	protected abstract long getDbId(Metadata.Helper helper);
 
 	@Override
 	protected void onPostExecute(Pair<Uri, Long> uri) {

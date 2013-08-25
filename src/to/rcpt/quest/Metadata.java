@@ -64,11 +64,14 @@ public final class Metadata {
 			}
 		}
 
-		public long newImage(Uri originalUri, Uri linearizedUri) {
+		public long newImage(Uri originalUri) {
 			ContentValues values = new ContentValues();
 			values.put(Images.ORIGINAL, originalUri.toString());
-			values.put(Images.LINEARIZED, linearizedUri.toString());
 			return getWritableDatabase().insert(TABLE_NAME, null, values);
+		}
+
+		public void setLinearizedImage(long id, Uri uri) {
+			setImage(Images.LINEARIZED, id, uri);
 		}
 
 		public void setSolutionImage(long id, Uri uri) {

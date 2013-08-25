@@ -48,6 +48,11 @@ public class SolutionImageActivity extends Activity {
 				helper.setSolutionImage(dbId, uri);
 				return dbId;
 			}
+
+			@Override
+			protected long getDbId(Helper helper) {
+				return dbId;
+			}
 		}.execute();
 	}
 }
