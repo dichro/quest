@@ -114,12 +114,15 @@ public class QuestListActivity extends ListActivity implements
 
 	private boolean editImage(Class<?> cls, Cursor c, long rowId,
 			String columnName) {
+		if (!c.moveToPosition((int) rowId)) {
+			Toaster.s(this, "Move to position failed", rowId);
+			return true;
+		}
 		int columnIndex = c.getColumnIndex(columnName);
 		if (columnIndex == -1) {
 			Toaster.s(this, "No entry for column", columnName);
 			return false;
 		}
-		c.moveToPosition((int) rowId);
 		if (c.isNull(columnIndex)) {
 			return false;
 		}

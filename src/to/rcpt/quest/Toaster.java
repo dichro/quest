@@ -29,29 +29,29 @@ public class Toaster extends Handler {
 		}
 	}
 
-	public void toast(int duration, String msg, String... more) {
+	public void toast(int duration, String msg, Object... more) {
 		StringBuilder sb = new StringBuilder(msg);
-		for (String s : more) {
+		for (Object s : more) {
 			sb.append(" ").append(s);
 		}
 		sendMessage(obtainMessage(duration, sb.toString()));
 	}
 
-	public void s(String msg, String... more) {
+	public void s(String msg, Object... more) {
 		toast(Toast.LENGTH_SHORT, msg, more);
 	}
 
-	public void l(String msg, String... more) {
+	public void l(String msg, Object... more) {
 		toast(Toast.LENGTH_LONG, msg, more);
 	}
 
-	public static void s(Context context, String msg, String... more) {
+	public static void s(Context context, String msg, Object... more) {
 		if (context != null) {
 			new Toaster(context).s(msg, more);
 		}
 	}
 
-	public static void l(Context context, String msg, String... more) {
+	public static void l(Context context, String msg, Object... more) {
 		if (context != null) {
 			new Toaster(context).l(msg, more);
 		}
