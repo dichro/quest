@@ -23,6 +23,7 @@ public class QuestListActivity extends ListActivity implements
 		@Override
 		public boolean setViewValue(final View view, Cursor cursor,
 				int columnIndex) {
+			view.setTag(cursor.getPosition());
 			if (cursor.isNull(columnIndex)) {
 				return true;
 			}
@@ -53,9 +54,13 @@ public class QuestListActivity extends ListActivity implements
 	}
 
 	public void deleteQuest(View v) {
-		int pos = viewToListPosition(v);
-		long rowId = adapter.getItemId(pos);
-		Cursor c = (Cursor) adapter.getItem(pos);
+		Object tag = v.getTag();
+		if (!(tag instanceof Integer)) {
+			Toaster.s(this, "Strange tag on view:", tag);
+			return;
+		}
+		int rowId = (Integer) tag;
+		Cursor c = (Cursor) adapter.getItem(rowId);
 		View dialog = getLayoutInflater().inflate(R.layout.dialog_delete_quest,
 				null);
 		dialog.findViewById(R.id.imageView1);
@@ -78,9 +83,13 @@ public class QuestListActivity extends ListActivity implements
 	}
 
 	public void editImage(View v) {
-		int pos = viewToListPosition(v);
-		long rowId = adapter.getItemId(pos);
-		Cursor c = (Cursor) adapter.getItem(pos);
+		Object tag = v.getTag();
+		if (!(tag instanceof Integer)) {
+			Toaster.s(this, "Strange tag on view:", tag);
+			return;
+		}
+		int rowId = (Integer) tag;
+		Cursor c = (Cursor) adapter.getItem(rowId);
 		switch (v.getId()) {
 		case R.id.clue:
 			if (editImage(ClueImageActivity.class, c, rowId,
@@ -103,13 +112,6 @@ public class QuestListActivity extends ListActivity implements
 				Toaster.s(this, "Couldn't load any images to edit!");
 			}
 		}
-	}
-
-	private int viewToListPosition(View v) {
-		int[] loc = new int[2];
-		v.getLocationInWindow(loc);
-		int pos = getListView().pointToPosition(loc[0], loc[1]);
-		return pos;
 	}
 
 	private boolean editImage(Class<?> cls, Cursor c, long rowId,
