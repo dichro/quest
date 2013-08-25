@@ -32,6 +32,10 @@ public class ClueImageActivity extends Activity {
 		super.onResume();
 		Intent intent = getIntent();
 		dbId = intent.getLongExtra(BaseColumns._ID, -1);
+		if (dbId == -1) {
+			Toaster.s(this, "No ID received?");
+			return;
+		}
 		Uri uri = intent.getData();
 		if (uri == null) {
 			Toaster.s(this, "No URI received");
@@ -43,9 +47,8 @@ public class ClueImageActivity extends Activity {
 	public void goNext(View v) {
 		new ImageHandoffTask(this, QuestListActivity.class, erasingView, "clue") {
 			@Override
-			protected long updateDb(Helper helper, Uri uri) {
+			protected void updateDb(Helper helper, long dbId, Uri uri) {
 				helper.setClueImage(dbId, uri);
-				return dbId;
 			}
 
 			@Override

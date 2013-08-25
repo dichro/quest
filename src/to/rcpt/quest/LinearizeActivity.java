@@ -60,9 +60,8 @@ public class LinearizeActivity extends Activity implements
 	public void finishImage(View view) {
 		new ImageHandoffTask(this, SolutionImageActivity.class, this, "base") {
 			@Override
-			protected long updateDb(Metadata.Helper helper, Uri uri) {
-				helper.setLinearizedImage(-1, uri);
-				return -1;
+			protected void updateDb(Metadata.Helper helper, long dbId, Uri uri) {
+				helper.setLinearizedImage(dbId, uri);
 			}
 
 			@Override

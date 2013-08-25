@@ -53,10 +53,19 @@ public abstract class ImageHandoffTask extends
 			return null;
 		}
 		Bitmap b = bs.getBitmap();
-		File file = getFile();
-		if (file == null) {
+		File dir = new File(Environment.getExternalStorageDirectory(), SUBDIR);
+		if (!dir.exists() && !dir.mkdirs()) {
+			Toaster.s(originContext.get(), "Couldn't create:",
+					dir.getAbsolutePath());
 			return null;
 		}
+		Context ctx = originContext.get();
+		if (ctx == null) {
+			return null;
+		}
+		Metadata.Helper helper = new Metadata.Helper(ctx);
+		long dbId = getDbId(helper);
+		File file = new File(dir, dbId + "-" + fileName + ".png");
 		try {
 			if (!b.compress(Bitmap.CompressFormat.PNG, 100,
 					new FileOutputStream(file))) {
@@ -69,29 +78,11 @@ public abstract class ImageHandoffTask extends
 			return null;
 		}
 		Uri uri = Uri.fromFile(file);
-		Context ctx = originContext.get();
-		if (ctx == null) {
-			return null;
-		}
-		return Pair.create(uri, updateDb(new Metadata.Helper(ctx), uri));
+		updateDb(helper, dbId, uri);
+		return Pair.create(uri, dbId);
 	}
 
-	protected File getFile() {
-		File dir = new File(Environment.getExternalStorageDirectory(), SUBDIR);
-		if (!dir.exists() && !dir.mkdirs()) {
-			Toaster.s(originContext.get(), "Couldn't create:",
-					dir.getAbsolutePath());
-			return null;
-		}
-		Context ctx = originContext.get();
-		if (ctx == null) {
-			return null;
-		}
-		return new File(dir, getDbId(new Metadata.Helper(ctx)) + "-" + fileName
-				+ ".png");
-	}
-
-	protected abstract long updateDb(Metadata.Helper helper, Uri uri);
+	protected abstract void updateDb(Metadata.Helper helper, long dbId, Uri uri);
 
 	protected abstract long getDbId(Metadata.Helper helper);
 

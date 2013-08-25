@@ -44,9 +44,8 @@ public class SolutionImageActivity extends Activity {
 		new ImageHandoffTask(this, ClueImageActivity.class, erasingView,
 				"solution") {
 			@Override
-			protected long updateDb(Helper helper, Uri uri) {
+			protected void updateDb(Helper helper, long dbId, Uri uri) {
 				helper.setSolutionImage(dbId, uri);
-				return dbId;
 			}
 
 			@Override

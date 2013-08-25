@@ -4,6 +4,7 @@ import java.lang.ref.WeakReference;
 
 import android.content.Context;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.widget.Toast;
 
@@ -16,6 +17,7 @@ public class Toaster extends Handler {
 	private final WeakReference<Context> context;
 
 	public Toaster(Context context) {
+		super(Looper.getMainLooper());
 		this.context = new WeakReference<Context>(context);
 	}
 
