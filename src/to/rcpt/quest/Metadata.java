@@ -67,7 +67,12 @@ public final class Metadata {
 		public long newImage(Uri originalUri) {
 			ContentValues values = new ContentValues();
 			values.put(Images.ORIGINAL, originalUri.toString());
-			return getWritableDatabase().insert(TABLE_NAME, null, values);
+			SQLiteDatabase db = getWritableDatabase();
+			try {
+				return db.insert(TABLE_NAME, null, values);
+			} finally {
+				db.close();
+			}
 		}
 
 		public void setLinearizedImage(long id, Uri uri) {
@@ -85,9 +90,10 @@ public final class Metadata {
 		private void setImage(String columnName, long id, Uri uri) {
 			ContentValues values = new ContentValues();
 			values.put(columnName, uri.toString());
-			getWritableDatabase().update(TABLE_NAME, values,
-					BaseColumns._ID + " = ?",
+			SQLiteDatabase db = getWritableDatabase();
+			db.update(TABLE_NAME, values, BaseColumns._ID + " = ?",
 					new String[] { String.valueOf(id) });
+			db.close();
 		}
 
 		public Loader<Cursor> getLoader() {
